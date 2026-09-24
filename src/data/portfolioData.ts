@@ -43,37 +43,37 @@ export const defaultVideos: VideoProject[] = [];
 export const defaultGraphics: GraphicProject[] = [
   {
     id: 1,
+    title: 'Commercial Brand & Product Ad Design',
+    desc: 'High-converting social media promotional banner & commercial product visual composition.',
+    image: 'https://i.postimg.cc/5tMpwqDh/ads3.png',
+    category: 'branding',
+  },
+  {
+    id: 2,
     title: 'Smart Watch Commercial Social Media Ad Banner',
     desc: 'High-converting smartwatch promotional visual ad campaign designed for digital marketing and social media engagement.',
     image: 'https://i.postimg.cc/0QrrDvN8/3711-MD-Tarek-Aziz-(whats)-Copy.png',
     category: 'branding',
   },
   {
-    id: 2,
+    id: 3,
     title: 'Creative Product Promotional Poster Design',
     desc: 'Striking commercial product poster composition with professional lighting, typography, and brand storytelling.',
     image: 'https://i.postimg.cc/bYW3B046/3707-Mahfujur-Rahman-Product-Poster-Design-02.jpg',
     category: 'branding',
   },
   {
-    id: 3,
+    id: 4,
     title: 'Social Media Brand Advertisement Campaign',
     desc: 'Modern, vibrant visual advertising banner crafted for maximum click-through rates and high conversion.',
     image: 'https://i.postimg.cc/rpf9C5SP/ads.png',
     category: 'branding',
   },
   {
-    id: 4,
+    id: 5,
     title: 'Commercial Product Packaging & Brand Showcase',
     desc: 'Clean, minimalist product design and packaging visual highlighting key features and luxury brand aesthetics.',
     image: 'https://i.postimg.cc/d1G9D7Wv/prodac.png',
-    category: 'branding',
-  },
-  {
-    id: 5,
-    title: 'Luxury Perfume Brand Advertising Design',
-    desc: 'Premium perfume bottle commercial visual ad featuring elegant color harmony, atmospheric lighting, and brand identity.',
-    image: 'https://i.postimg.cc/CKxG1dWq/MD-TAREK-AZIZ-3711luxure-perfume.png',
     category: 'branding',
   },
   {
@@ -82,13 +82,6 @@ export const defaultGraphics: GraphicProject[] = [
     desc: 'Signature branding graphic poster blending kinetic typography with striking artistic visual direction.',
     image: 'https://i.postimg.cc/wT8VKkjv/ta.png',
     category: 'branding',
-  },
-  {
-    id: 7,
-    title: 'Commercial Brand & Product Ad Design',
-    desc: 'High-converting social media promotional banner & product visual composition',
-    image: 'https://i.postimg.cc/5tMpwqDh/ads3.png',
-    category: 'graphic',
   },
 ];
 

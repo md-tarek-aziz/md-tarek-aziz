@@ -130,13 +130,23 @@ export default function App() {
   // Custom graphic projects state (stored in localStorage)
   const [graphics, setGraphics] = useState<GraphicProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_graphics_v5');
+      const saved = localStorage.getItem('tarek_portfolio_graphics_v7');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingImages = new Set(parsed.map((p: GraphicProject) => p.image));
+          const cleaned = parsed.filter(
+            (p: GraphicProject) => !p.image?.includes('MD-TAREK-AZIZ-3711luxure-perfume.png')
+          );
+          const existingImages = new Set(cleaned.map((p: GraphicProject) => p.image));
           const missingDefaults = defaultGraphics.filter((dg) => !existingImages.has(dg.image));
-          return [...parsed, ...missingDefaults];
+          const combined = [...cleaned, ...missingDefaults];
+          // Ensure ads3 is at the very top as requested
+          const ads3Item = combined.find((g) => g.image === defaultGraphics[0].image);
+          if (ads3Item && combined[0]?.image !== ads3Item.image) {
+            const filtered = combined.filter((g) => g.image !== ads3Item.image);
+            return [ads3Item, ...filtered];
+          }
+          return combined;
         }
       }
     } catch (e) {
@@ -153,7 +163,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v5', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v7', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -165,7 +175,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = prev.filter((g) => g.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v5', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v7', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }

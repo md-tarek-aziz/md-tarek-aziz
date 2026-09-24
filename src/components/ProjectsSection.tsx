@@ -593,7 +593,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           ) : (
             /* Slider View for Graphics & Branding with Motion Transition and Fast CDN Loading */
             <div className="space-y-5">
-              <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
+              <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
                 {/* Left Flanking Navigation Arrow */}
                 <button
                   type="button"
@@ -604,12 +604,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   <ChevronLeft size={20} />
                 </button>
 
-                {/* Central Design Frame with Neon Rounded Border (Exact screenshot match) */}
+                {/* Central Design Frame with Neon Rounded Border - Exactly matching 4:5 image proportion (640x800) */}
                 <div
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                   onClick={() => setSelectedGraphic(graphicItems[sliderIndex])}
-                  className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group cursor-pointer"
+                  className="w-full max-w-[420px] sm:max-w-[480px] aspect-[4/5] bg-black rounded-[22px] sm:rounded-[28px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group cursor-pointer"
                 >
                   {/* Ambient Blurred Backdrop with instant low-res blur */}
                   {graphicItems[sliderIndex] && (
@@ -657,7 +657,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        className="w-full h-full flex items-center justify-center relative z-10 p-1 sm:p-2"
+                        className="w-full h-full flex items-center justify-center relative z-10"
                       >
                         <img
                           src={getFastImageUrl(graphicItems[sliderIndex].image, 1400, 85)}
