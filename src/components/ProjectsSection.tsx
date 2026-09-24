@@ -16,9 +16,22 @@ import {
   Trash2,
   ImagePlus,
   Upload,
+  Sparkles,
 } from 'lucide-react';
 import { VideoProject, GraphicProject } from '../types/portfolio';
 import { translations } from '../data/portfolioData';
+
+// High-speed globally edge-cached WebP image accelerator (via Cloudflare CDN network)
+export const getFastImageUrl = (url: string, width = 1200, quality = 82): string => {
+  if (!url) return '';
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+  if (url.includes('wsrv.nl')) return url;
+  try {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=${quality}&output=webp`;
+  } catch {
+    return url;
+  }
+};
 
 interface ProjectsSectionProps {
   videos: VideoProject[];
@@ -43,6 +56,10 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [activeTab, setActiveTab] = useState<'video' | 'graphic' | 'branding'>(videos.length > 0 ? 'video' : 'branding');
   const [viewMode, setViewMode] = useState<'grid' | 'slider'>('slider');
   const [sliderIndex, setSliderIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const [isAutoplay, setIsAutoplay] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const AUTOPLAY_INTERVAL = 4000;
 
   // Lightbox modal state for graphics
   const [selectedGraphic, setSelectedGraphic] = useState<GraphicProject | null>(null);
@@ -137,11 +154,18 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     activeTab === 'video' ? videos.length : graphicItems.length;
 
   const handleNextSlider = () => {
+    setSlideDirection(1);
     setSliderIndex((prev) => (prev + 1) % Math.max(1, currentItemsCount));
   };
 
   const handlePrevSlider = () => {
+    setSlideDirection(-1);
     setSliderIndex((prev) => (prev - 1 + currentItemsCount) % Math.max(1, currentItemsCount));
+  };
+
+  const handleSelectSlide = (idx: number) => {
+    setSlideDirection(idx >= sliderIndex ? 1 : -1);
+    setSliderIndex(idx);
   };
 
   useEffect(() => {
@@ -156,12 +180,27 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentItemsCount]);
 
-  // Aggressively preload all graphics and branding images into browser cache
+  // Autoplay motion transition: slides move one after another automatically
+  useEffect(() => {
+    if (activeTab === 'video') return;
+    if (!isAutoplay || isHovered || currentItemsCount <= 1) return;
+
+    const timer = setInterval(() => {
+      setSlideDirection(1);
+      setSliderIndex((prev) => (prev + 1) % currentItemsCount);
+    }, AUTOPLAY_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [activeTab, isAutoplay, isHovered, currentItemsCount]);
+
+  // Aggressively preload fast CDN WebP images into browser cache
   useEffect(() => {
     graphics.forEach((item) => {
       if (item.image) {
         const img = new Image();
-        img.src = item.image;
+        img.src = getFastImageUrl(item.image, 1400, 85);
+        const thumb = new Image();
+        thumb.src = getFastImageUrl(item.image, 200, 50);
       }
     });
   }, [graphics]);
@@ -506,9 +545,14 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 >
                   <div className="aspect-[4/3] bg-neutral-950 rounded-xl overflow-hidden mb-3 border border-[#262626] relative">
                     <img
-                      src={item.image}
+                      src={getFastImageUrl(item.image, 700, 80)}
                       alt={item.title}
                       loading="lazy"
+                      onError={(e) => {
+                        if (e.currentTarget.src !== item.image) {
+                          e.currentTarget.src = item.image;
+                        }
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
@@ -547,51 +591,102 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               ))}
             </div>
           ) : (
-            /* Slider View for Graphics & Branding - Exact match with user's screenshot */
-            <div className="space-y-4">
+            /* Slider View for Graphics & Branding with Motion Transition and Fast CDN Loading */
+            <div className="space-y-5">
               <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
                 {/* Left Flanking Navigation Arrow */}
                 <button
                   type="button"
                   onClick={handlePrevSlider}
                   aria-label="Previous Design"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-10"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
                 >
                   <ChevronLeft size={20} />
                 </button>
 
                 {/* Central Design Frame with Neon Rounded Border (Exact screenshot match) */}
                 <div
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
                   onClick={() => setSelectedGraphic(graphicItems[sliderIndex])}
-                  className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.22)] relative flex items-center justify-center group cursor-pointer"
+                  className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group cursor-pointer"
                 >
-                  {/* Persistent pre-rendered slide stack for instant 0ms switching without network wait */}
-                  {graphicItems.map((item, idx) => {
-                    const isActive = idx === sliderIndex;
-                    return (
-                      <div
-                        key={item.id}
-                        className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
-                          isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
-                        }`}
+                  {/* Ambient Blurred Backdrop with instant low-res blur */}
+                  {graphicItems[sliderIndex] && (
+                    <div
+                      className="absolute inset-0 bg-cover bg-center blur-2xl opacity-25 scale-110 pointer-events-none transition-all duration-500"
+                      style={{
+                        backgroundImage: `url(${getFastImageUrl(graphicItems[sliderIndex].image, 200, 40)})`,
+                      }}
+                    />
+                  )}
+
+                  {/* Motion Slide Transition */}
+                  <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
+                    {graphicItems[sliderIndex] && (
+                      <motion.div
+                        key={graphicItems[sliderIndex].id}
+                        custom={slideDirection}
+                        variants={{
+                          enter: (dir: number) => ({
+                            x: dir > 0 ? 80 : -80,
+                            opacity: 0,
+                            scale: 0.96,
+                          }),
+                          center: {
+                            x: 0,
+                            opacity: 1,
+                            scale: 1,
+                            transition: {
+                              x: { type: 'spring', stiffness: 280, damping: 28 },
+                              opacity: { duration: 0.3 },
+                              scale: { duration: 0.3 },
+                            },
+                          },
+                          exit: (dir: number) => ({
+                            x: dir > 0 ? -80 : 80,
+                            opacity: 0,
+                            scale: 0.96,
+                            transition: {
+                              x: { type: 'spring', stiffness: 280, damping: 28 },
+                              opacity: { duration: 0.25 },
+                              scale: { duration: 0.25 },
+                            },
+                          }),
+                        }}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        className="w-full h-full flex items-center justify-center relative z-10 p-1 sm:p-2"
                       >
-                        {/* Ambient Blurred Backdrop */}
-                        {isActive && (
-                          <div
-                            className="absolute inset-0 bg-cover bg-center blur-2xl opacity-25 scale-110 pointer-events-none transition-all duration-300"
-                            style={{ backgroundImage: `url(${item.image})` }}
-                          />
-                        )}
                         <img
-                          src={item.image}
-                          alt={item.title}
+                          src={getFastImageUrl(graphicItems[sliderIndex].image, 1400, 85)}
+                          alt={graphicItems[sliderIndex].title}
                           loading="eager"
                           decoding="async"
-                          className="w-full h-full object-contain relative z-10 select-none transition-transform duration-300 group-hover:scale-[1.01]"
+                          onError={(e) => {
+                            if (e.currentTarget.src !== graphicItems[sliderIndex].image) {
+                              e.currentTarget.src = graphicItems[sliderIndex].image;
+                            }
+                          }}
+                          className="w-full h-full object-contain select-none transition-transform duration-500 group-hover:scale-[1.01]"
                         />
-                      </div>
-                    );
-                  })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Autoplay progress bar line at the bottom */}
+                  {isAutoplay && !isHovered && graphicItems.length > 1 && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 z-20 pointer-events-none">
+                      <motion.div
+                        key={sliderIndex}
+                        initial={{ width: '0%' }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: AUTOPLAY_INTERVAL / 1000, ease: 'linear' }}
+                        className="h-full bg-gradient-to-r from-[#06cdff] to-[#4ce1ff] shadow-[0_0_8px_#06cdff]"
+                      />
+                    </div>
+                  )}
 
                   {/* Delete button */}
                   {onDeleteGraphic && graphicItems[sliderIndex] && (
@@ -602,14 +697,14 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         onDeleteGraphic(graphicItems[sliderIndex].id);
                       }}
                       title="Delete this design"
-                      className="absolute top-3 right-3 z-20 p-2.5 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                      className="absolute top-3 right-3 z-30 p-2.5 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
                     >
                       <Trash2 size={15} />
                     </button>
                   )}
 
                   {/* Click to zoom badge */}
-                  <div className="absolute bottom-3 right-3 z-10 px-3 py-1.5 rounded-full bg-black/75 border border-white/10 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 backdrop-blur-md pointer-events-none">
+                  <div className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full bg-black/75 border border-white/10 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 backdrop-blur-md pointer-events-none">
                     <ExternalLink size={12} className="text-[#06cdff]" />
                     <span>{lang === 'bn' ? 'ফুল স্ক্রিন প্রিভিউ' : 'Fullscreen'}</span>
                   </div>
@@ -620,29 +715,32 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   type="button"
                   onClick={handleNextSlider}
                   aria-label="Next Design"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-10"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
                 >
                   <ChevronRight size={20} />
                 </button>
               </div>
 
-              {/* Slider Dots Indicator */}
+              {/* Clean Slide Dots & Count Indicator (1 / 6) */}
               {graphicItems.length > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  {graphicItems.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSliderIndex(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                        idx === sliderIndex
-                          ? 'w-7 bg-[#06cdff] shadow-[0_0_10px_rgba(6,205,255,0.6)]'
-                          : 'w-2 bg-neutral-700 hover:bg-neutral-500'
-                      }`}
-                      aria-label={`Slide ${idx + 1}`}
-                    />
-                  ))}
-                  <span className="text-[11px] font-mono text-neutral-400 ml-2">
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <div className="flex items-center gap-1.5">
+                    {graphicItems.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectSlide(idx)}
+                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          idx === sliderIndex
+                            ? 'w-7 bg-[#06cdff] shadow-[0_0_10px_rgba(6,205,255,0.6)]'
+                            : 'w-1.5 bg-neutral-700 hover:bg-neutral-500'
+                        }`}
+                        aria-label={`Slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <span className="text-xs font-mono text-neutral-400">
                     <span className="text-[#06cdff] font-bold">{sliderIndex + 1}</span> / {graphicItems.length}
                   </span>
                 </div>
@@ -675,8 +773,13 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 
               <div className="max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl bg-neutral-950 mb-4">
                 <img
-                  src={selectedGraphic.image}
+                  src={getFastImageUrl(selectedGraphic.image, 1600, 90)}
                   alt={selectedGraphic.title}
+                  onError={(e) => {
+                    if (e.currentTarget.src !== selectedGraphic.image) {
+                      e.currentTarget.src = selectedGraphic.image;
+                    }
+                  }}
                   className="max-h-[70vh] w-auto object-contain"
                 />
               </div>
