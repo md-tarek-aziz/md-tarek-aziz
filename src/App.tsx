@@ -86,10 +86,10 @@ export default function App() {
   // Video projects state (stored in localStorage)
   const [videos, setVideos] = useState<VideoProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_videos_v1');
+      const saved = localStorage.getItem('tarek_portfolio_videos_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
       }
@@ -107,7 +107,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_videos_v1', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v3', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -119,7 +119,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = prev.filter((v) => v.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_videos_v1', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v3', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -130,16 +130,21 @@ export default function App() {
   // Custom graphic projects state (stored in localStorage)
   const [graphics, setGraphics] = useState<GraphicProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_graphics_v7');
+      const saved = localStorage.getItem('tarek_portfolio_graphics_v17');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed.filter(
             (p: GraphicProject) => !p.image?.includes('MD-TAREK-AZIZ-3711luxure-perfume.png')
           );
-          const existingImages = new Set(cleaned.map((p: GraphicProject) => p.image));
+          const categoryMap = new Map(defaultGraphics.map((dg) => [dg.image, dg.category]));
+          const updatedWithCategories = cleaned.map((item: GraphicProject) => ({
+            ...item,
+            category: categoryMap.get(item.image) || item.category || 'graphic',
+          }));
+          const existingImages = new Set(updatedWithCategories.map((p: GraphicProject) => p.image));
           const missingDefaults = defaultGraphics.filter((dg) => !existingImages.has(dg.image));
-          const combined = [...cleaned, ...missingDefaults];
+          const combined = [...updatedWithCategories, ...missingDefaults];
           // Ensure ads3 is at the very top as requested
           const ads3Item = combined.find((g) => g.image === defaultGraphics[0].image);
           if (ads3Item && combined[0]?.image !== ads3Item.image) {
@@ -163,7 +168,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v7', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -175,7 +180,19 @@ export default function App() {
     setGraphics((prev) => {
       const updated = prev.filter((g) => g.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v7', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+  };
+
+  const handleUpdateGraphic = (id: number | string, updatedFields: Partial<GraphicProject>) => {
+    setGraphics((prev) => {
+      const updated = prev.map((g) => (g.id === id ? { ...g, ...updatedFields } : g));
+      try {
+        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -258,6 +275,7 @@ export default function App() {
           onDeleteVideo={handleDeleteVideo}
           onAddGraphic={handleAddGraphic}
           onDeleteGraphic={handleDeleteGraphic}
+          onUpdateGraphic={handleUpdateGraphic}
           lang={lang}
         />
 

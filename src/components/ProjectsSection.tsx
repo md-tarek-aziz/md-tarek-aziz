@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Video,
@@ -17,20 +17,156 @@ import {
   ImagePlus,
   Upload,
   Sparkles,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { VideoProject, GraphicProject } from '../types/portfolio';
 import { translations } from '../data/portfolioData';
 
-// High-speed globally edge-cached WebP image accelerator (via Cloudflare CDN network)
-export const getFastImageUrl = (url: string, width = 1200, quality = 82): string => {
+// Direct CDN Image provider with fallback
+export const getFastImageUrl = (url: string, _width?: number, _quality?: number): string => {
   if (!url) return '';
-  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
-  if (url.includes('wsrv.nl')) return url;
-  try {
-    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=${quality}&output=webp`;
-  } catch {
-    return url;
+  return url;
+};
+
+interface SafeProjectImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+  onImageReplace?: (newSrc: string) => void;
+  lang: 'en' | 'bn';
+}
+
+export const SafeProjectImage: React.FC<SafeProjectImageProps> = ({
+  src,
+  alt,
+  className = '',
+  onImageReplace,
+  lang,
+}) => {
+  const [attempt, setAttempt] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const cleanNoProto = src.replace(/^https?:\/\//, '');
+  const sources = useMemo(() => {
+    if (src.startsWith('data:') || src.startsWith('blob:')) {
+      return [src];
+    }
+    return [
+      src, // Tier 1: Direct link (no-referrer)
+      `https://i0.wp.com/${cleanNoProto}`, // Tier 2: Jetpack global CDN cache
+      `https://images.weserv.nl/?url=${encodeURIComponent(src)}&default=${encodeURIComponent(src)}`, // Tier 3: WeServ CDN
+      src.endsWith('.png') ? src.replace(/\.png$/, '.jpg') : src.replace(/\.jpg$/, '.png'), // Tier 4: Alternate extension
+    ];
+  }, [src, cleanNoProto]);
+
+  useEffect(() => {
+    setAttempt(0);
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src]);
+
+  const currentSrc = sources[Math.min(attempt, sources.length - 1)];
+
+  const handleError = () => {
+    if (attempt < sources.length - 1) {
+      setAttempt((prev) => prev + 1);
+    } else {
+      setHasError(true);
+      setIsLoaded(true);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onImageReplace) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          onImageReplace(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full min-h-[200px] flex flex-col items-center justify-center p-6 text-center bg-[#0d0d0d] rounded-2xl border border-dashed border-[#333]">
+        <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-3">
+          <AlertCircle size={22} />
+        </div>
+        <p className="text-sm font-bold text-white mb-1">
+          {lang === 'bn' ? 'ডিজাইনটি লোড হতে সমস্যা হয়েছে' : 'Image failed to load'}
+        </p>
+        <p className="text-xs text-neutral-400 max-w-sm mb-4">
+          {lang === 'bn'
+            ? 'সার্ভার থেকে ছবিটি পাওয়া যায়নি। আপনি নিচে ক্লিক করে সরাসরি আপনার ফাইল থেকে ছবিটি আপলোড করে দিতে পারেন।'
+            : 'Image could not be retrieved. Click below to upload your file directly.'}
+        </p>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setAttempt(0);
+              setHasError(false);
+              setIsLoaded(false);
+            }}
+            className="px-3.5 py-2 rounded-xl bg-[#1c1c1c] hover:bg-[#282828] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#333]"
+          >
+            <RefreshCw size={13} />
+            <span>{lang === 'bn' ? 'পুনরায় চেষ্টা করুন' : 'Retry'}</span>
+          </button>
+          {onImageReplace && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="px-4 py-2 rounded-xl bg-[#06cdff] hover:bg-[#05b8e6] text-black text-xs font-bold flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(6,205,255,0.4)] cursor-pointer"
+              >
+                <Upload size={14} />
+                <span>{lang === 'bn' ? 'ছবি আপলোড করুন' : 'Upload Image'}</span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
   }
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 pointer-events-none">
+          <div className="w-8 h-8 rounded-full border-2 border-[#06cdff]/20 border-t-[#06cdff] animate-spin" />
+        </div>
+      )}
+      <img
+        src={currentSrc}
+        alt={alt}
+        loading="eager"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        crossOrigin="anonymous"
+        onLoad={() => setIsLoaded(true)}
+        onError={handleError}
+        className={`${className} ${!isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+      />
+    </div>
+  );
 };
 
 interface ProjectsSectionProps {
@@ -40,6 +176,7 @@ interface ProjectsSectionProps {
   onDeleteVideo?: (id: number | string) => void;
   onAddGraphic?: (graphic: Omit<GraphicProject, 'id'>) => void;
   onDeleteGraphic?: (id: number | string) => void;
+  onUpdateGraphic?: (id: number | string, updatedFields: Partial<GraphicProject>) => void;
   lang: 'en' | 'bn';
 }
 
@@ -50,10 +187,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   onDeleteVideo,
   onAddGraphic,
   onDeleteGraphic,
+  onUpdateGraphic,
   lang,
 }) => {
   const t = translations[lang].projects_section;
-  const [activeTab, setActiveTab] = useState<'video' | 'graphic' | 'branding'>(videos.length > 0 ? 'video' : 'branding');
+  const [activeTab, setActiveTab] = useState<'video' | 'graphic' | 'branding'>('graphic');
   const [viewMode, setViewMode] = useState<'grid' | 'slider'>('slider');
   const [sliderIndex, setSliderIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
@@ -147,11 +285,21 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   };
 
   const graphicItems = graphics.filter((g) =>
-    activeTab === 'branding' ? g.category === 'branding' : g.category !== 'branding'
+    activeTab === 'branding' ? g.category === 'branding' : g.category === 'graphic'
   );
 
   const currentItemsCount =
     activeTab === 'video' ? videos.length : graphicItems.length;
+
+  useEffect(() => {
+    setSliderIndex(0);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (sliderIndex >= currentItemsCount && currentItemsCount > 0) {
+      setSliderIndex(0);
+    }
+  }, [sliderIndex, currentItemsCount]);
 
   const handleNextSlider = () => {
     setSlideDirection(1);
@@ -180,9 +328,9 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentItemsCount]);
 
-  // Autoplay motion transition: slides move one after another automatically
+  // Autoplay motion transition: slides move one after another automatically for branding only
   useEffect(() => {
-    if (activeTab === 'video') return;
+    if (activeTab !== 'branding') return;
     if (!isAutoplay || isHovered || currentItemsCount <= 1) return;
 
     const timer = setInterval(() => {
@@ -378,29 +526,79 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       {activeTab === 'video' && (
         <div>
           {videos.length === 0 ? (
-            <div className="border border-dashed border-[#2e2e2e] hover:border-[#06cdff]/40 bg-[#0a0a0a]/90 rounded-3xl p-10 sm:p-14 text-center max-w-xl mx-auto transition-all shadow-xl">
-              <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mx-auto mb-4 shadow-[0_0_25px_rgba(6,205,255,0.15)]">
-                <Video size={30} />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                {lang === 'bn' ? 'কোনো ভিডিও প্রজেক্ট নেই' : 'No Video Projects Yet'}
-              </h3>
-              <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
-                {lang === 'bn'
-                  ? 'পূর্বের স্যাম্পল ভিডিওগুলো কেটে দেওয়া হয়েছে। আপনি খুব সহজে আপনার নিজের ইউটিউব (YouTube), ভিমিও (Vimeo) বা ভিডিও লিংক এখানে যুক্ত করতে পারেন।'
-                  : 'Previous sample videos were cleared. You can now add your own YouTube or Vimeo editing projects.'}
-              </p>
-              {onAddVideo && (
+            viewMode === 'slider' ? (
+              /* Slider frame empty state matching requested widescreen box */
+              <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
+                {/* Left Flanking Navigation Arrow */}
                 <button
                   type="button"
-                  onClick={() => setIsAddVideoModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer"
+                  disabled
+                  aria-label="Previous Video"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818]/70 border border-[#2a2a2a] text-neutral-600 flex items-center justify-center shrink-0 cursor-not-allowed z-20"
                 >
-                  <Plus size={16} />
-                  <span>{lang === 'bn' ? 'নতুন ভিডিও যুক্ত করুন' : 'Add New Video'}</span>
+                  <ChevronLeft size={20} />
                 </button>
-              )}
-            </div>
+
+                {/* Central Video Frame with Rounded Neon Border - Empty placeholder ready for user videos */}
+                <div className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-b from-[#0e0e0e] to-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex flex-col items-center justify-center p-6 sm:p-10 text-center group">
+                  <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mb-4 shadow-[0_0_25px_rgba(6,205,255,0.2)]">
+                    <Video size={32} />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                    {lang === 'bn' ? 'ভিডিও এডিটিং বক্স খালি রয়েছে' : 'Video Editing Box is Empty'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
+                    {lang === 'bn'
+                      ? 'ভিডিওর বক্সটি প্রস্তুত রাখা হয়েছে। আপনি ভিডিওর লিংক দিলে এখানে যুক্ত করা হবে।'
+                      : 'This video showcase box is ready. Give me your video links to display them here.'}
+                  </p>
+                  {onAddVideo && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAddVideoModalOpen(true)}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer active:scale-95"
+                    >
+                      <Plus size={16} />
+                      <span>{lang === 'bn' ? 'ভিডিও যুক্ত করুন' : 'Add Video'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Right Flanking Navigation Arrow */}
+                <button
+                  type="button"
+                  disabled
+                  aria-label="Next Video"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818]/70 border border-[#2a2a2a] text-neutral-600 flex items-center justify-center shrink-0 cursor-not-allowed z-20"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            ) : (
+              <div className="border border-dashed border-[#2e2e2e] hover:border-[#06cdff]/40 bg-[#0a0a0a]/90 rounded-3xl p-10 sm:p-14 text-center max-w-xl mx-auto transition-all shadow-xl">
+                <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mx-auto mb-4 shadow-[0_0_25px_rgba(6,205,255,0.15)]">
+                  <Video size={30} />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                  {lang === 'bn' ? 'কোনো ভিডিও প্রজেক্ট নেই' : 'No Video Projects Yet'}
+                </h3>
+                <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
+                  {lang === 'bn'
+                    ? 'ভিডিওর বক্স খালি রাখা হয়েছে। আপনি ভিডিও দিলে এখানে যুক্ত করা হবে।'
+                    : 'Video box is kept empty. Add your video to display here.'}
+                </p>
+                {onAddVideo && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddVideoModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer"
+                  >
+                    <Plus size={16} />
+                    <span>{lang === 'bn' ? 'নতুন ভিডিও যুক্ত করুন' : 'Add New Video'}</span>
+                  </button>
+                )}
+              </div>
+            )
           ) : (
             <div className="space-y-8">
               {viewMode === 'grid' ? (
@@ -456,40 +654,105 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 </div>
               ) : (
                 /* Slider View for Videos - Exact match with user screenshot */
-                <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
-                  {/* Left Flanking Navigation Arrow */}
-                  <button
-                    type="button"
-                    onClick={handlePrevSlider}
-                    aria-label="Previous Video"
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-10"
-                  >
-                    <ChevronLeft size={20} />
-                  </button>
+                <div className="space-y-5">
+                  <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
+                    {/* Left Flanking Navigation Arrow */}
+                    <button
+                      type="button"
+                      onClick={handlePrevSlider}
+                      aria-label="Previous Video"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
 
-                  {/* Central Video Frame with Rounded Border */}
-                  <div className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.22)] relative flex items-center justify-center">
-                    {videos[sliderIndex] && (
-                      <iframe
-                        key={videos[sliderIndex].id}
-                        src={`${videos[sliderIndex].url}?title=0&byline=0&portrait=0`}
-                        title={videos[sliderIndex].title}
-                        className="w-full h-full bg-black block border-0"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                      />
-                    )}
+                    {/* Central Video Frame with Rounded Neon Border */}
+                    <div className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group">
+                      {videos[sliderIndex] && (
+                        <iframe
+                          key={videos[sliderIndex].id}
+                          src={`${videos[sliderIndex].url}?title=0&byline=0&portrait=0`}
+                          title={videos[sliderIndex].title}
+                          className="w-full h-full bg-black block border-0"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowFullScreen
+                        />
+                      )}
+
+                      {/* Delete button */}
+                      {onDeleteVideo && videos[sliderIndex] && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteVideo(videos[sliderIndex].id);
+                          }}
+                          title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete Video'}
+                          className="absolute top-3 right-3 z-30 p-2.5 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Right Flanking Navigation Arrow */}
+                    <button
+                      type="button"
+                      onClick={handleNextSlider}
+                      aria-label="Next Video"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
                   </div>
 
-                  {/* Right Flanking Navigation Arrow */}
-                  <button
-                    type="button"
-                    onClick={handleNextSlider}
-                    aria-label="Next Video"
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-10"
-                  >
-                    <ChevronRight size={20} />
-                  </button>
+                  {/* Clean Slide Dots & Count Indicator (1 / N) */}
+                  {videos.length > 1 && (
+                    <div className="flex items-center justify-center gap-3 pt-1">
+                      <div className="flex items-center gap-1.5">
+                        {videos.map((_, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleSelectSlide(idx)}
+                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                              idx === sliderIndex
+                                ? 'w-7 bg-[#06cdff] shadow-[0_0_10px_rgba(6,205,255,0.6)]'
+                                : 'w-1.5 bg-neutral-700 hover:bg-neutral-500'
+                            }`}
+                            aria-label={`Slide ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+
+                      <span className="text-xs font-mono text-neutral-400">
+                        <span className="text-[#06cdff] font-bold">{sliderIndex + 1}</span> / {videos.length}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Video Caption & Controls */}
+                  {videos[sliderIndex] && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 max-w-3xl mx-auto px-4 pt-1">
+                      <div className="text-center sm:text-left">
+                        <h4 className="text-base sm:text-lg font-bold text-white mb-0.5">
+                          {videos[sliderIndex].title}
+                        </h4>
+                        <p className="text-xs text-neutral-400 line-clamp-2">
+                          {videos[sliderIndex].desc}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveVideoModal(videos[sliderIndex])}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1a1a1a] hover:bg-[#06cdff] hover:text-black text-xs font-semibold text-white transition-all cursor-pointer shrink-0 shadow-md"
+                      >
+                        <Play size={13} fill="currentColor" />
+                        <span>{lang === 'bn' ? 'ফুল স্ক্রিনে চালান' : 'Watch Full Screen'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -501,39 +764,97 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       {activeTab !== 'video' && (
         <div>
           {graphicItems.length === 0 ? (
-            /* Empty State Container */
-            <div className="border border-dashed border-[#2e2e2e] hover:border-[#06cdff]/40 bg-[#0a0a0a]/90 rounded-3xl p-10 sm:p-14 text-center max-w-xl mx-auto transition-all shadow-xl">
-              <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mx-auto mb-4 shadow-[0_0_25px_rgba(6,205,255,0.15)]">
-                <ImagePlus size={30} />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                {lang === 'bn'
-                  ? activeTab === 'branding'
-                    ? 'কোনো ব্র্যান্ডিং প্রজেক্ট নেই'
-                    : 'কোনো গ্রাফিক প্রজেক্ট নেই'
-                  : activeTab === 'branding'
-                    ? 'No Branding Projects Yet'
-                    : 'No Graphic Projects Yet'}
-              </h3>
-              <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
-                {lang === 'bn'
-                  ? 'অন্যজনের পূর্বের ছবিগুলো সফলভাবে মুছে দেওয়া হয়েছে। এখন আপনি আপনার নিজের আকর্ষণীয় ডিজাইন, থাম্বনেইল বা ব্যানার যুক্ত করতে পারেন।'
-                  : 'Previous sample images were cleared. You can now add or upload your own creative designs and posters.'}
-              </p>
-              {onAddGraphic && (
+            viewMode === 'slider' ? (
+              /* Slider frame empty state matching requested widescreen box */
+              <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
+                {/* Left Flanking Navigation Arrow */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setNewCategory(activeTab === 'branding' ? 'branding' : 'graphic');
-                    setIsAddModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer"
+                  disabled
+                  aria-label="Previous Design"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818]/70 border border-[#2a2a2a] text-neutral-600 flex items-center justify-center shrink-0 cursor-not-allowed z-20"
                 >
-                  <Plus size={16} />
-                  <span>{lang === 'bn' ? 'আপনার ডিজাইন যোগ করুন' : 'Add Your Design'}</span>
+                  <ChevronLeft size={20} />
                 </button>
-              )}
-            </div>
+
+                {/* Central Graphic Frame with Rounded Neon Border - Empty placeholder ready for user designs */}
+                <div className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-b from-[#0e0e0e] to-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex flex-col items-center justify-center p-6 sm:p-10 text-center group">
+                  <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mb-4 shadow-[0_0_25px_rgba(6,205,255,0.2)]">
+                    <ImagePlus size={32} />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                    {lang === 'bn'
+                      ? activeTab === 'branding'
+                        ? 'ব্র্যান্ডিং বক্স খালি রয়েছে'
+                        : 'গ্রাফিক্স ডিজাইনের বক্স খালি রয়েছে'
+                      : activeTab === 'branding'
+                        ? 'Branding Box is Empty'
+                        : 'Graphic Design Box is Empty'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
+                    {lang === 'bn'
+                      ? 'গ্রাফিক্স ডিজাইনের বক্সটি প্রস্তুত রাখা হয়েছে। আপনি ডিজাইন দিলে এখানে সরাসরি যুক্ত হবে।'
+                      : 'This graphic design showcase box is ready. Give me your designs to display them here.'}
+                  </p>
+                  {onAddGraphic && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewCategory(activeTab === 'branding' ? 'branding' : 'graphic');
+                        setIsAddModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer active:scale-95"
+                    >
+                      <Plus size={16} />
+                      <span>{lang === 'bn' ? 'ডিজাইন যোগ করুন' : 'Add Design'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Right Flanking Navigation Arrow */}
+                <button
+                  type="button"
+                  disabled
+                  aria-label="Next Design"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818]/70 border border-[#2a2a2a] text-neutral-600 flex items-center justify-center shrink-0 cursor-not-allowed z-20"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            ) : (
+              <div className="border border-dashed border-[#2e2e2e] hover:border-[#06cdff]/40 bg-[#0a0a0a]/90 rounded-3xl p-10 sm:p-14 text-center max-w-xl mx-auto transition-all shadow-xl">
+                <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#262626] flex items-center justify-center text-[#06cdff] mx-auto mb-4 shadow-[0_0_25px_rgba(6,205,255,0.15)]">
+                  <ImagePlus size={30} />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                  {lang === 'bn'
+                    ? activeTab === 'branding'
+                      ? 'কোনো ব্র্যান্ডিং প্রজেক্ট নেই'
+                      : 'কোনো গ্রাফিক প্রজেক্ট নেই'
+                    : activeTab === 'branding'
+                      ? 'No Branding Projects Yet'
+                      : 'No Graphic Projects Yet'}
+                </h3>
+                <p className="text-xs sm:text-sm text-neutral-400 mb-6 max-w-md mx-auto leading-relaxed">
+                  {lang === 'bn'
+                    ? 'গ্রাফিক্স ডিজাইনের বক্স খালি রাখা হয়েছে। আপনি ডিজাইন দিলে এখানে যুক্ত হবে।'
+                    : 'Graphic design box is kept empty. Add your designs to display here.'}
+                </p>
+                {onAddGraphic && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewCategory(activeTab === 'branding' ? 'branding' : 'graphic');
+                      setIsAddModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] cursor-pointer"
+                  >
+                    <Plus size={16} />
+                    <span>{lang === 'bn' ? 'আপনার ডিজাইন যোগ করুন' : 'Add Your Design'}</span>
+                  </button>
+                )}
+              </div>
+            )
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {graphicItems.map((item) => (
@@ -544,15 +865,10 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   className="group border border-[#262626] bg-[#0a0a0a] rounded-2xl p-3.5 transition-all hover:border-[#06cdff]/40 hover:shadow-[0_0_20px_rgba(6,205,255,0.25)] cursor-pointer flex flex-col justify-between relative"
                 >
                   <div className="aspect-[4/3] bg-neutral-950 rounded-xl overflow-hidden mb-3 border border-[#262626] relative">
-                    <img
-                      src={getFastImageUrl(item.image, 700, 80)}
+                    <SafeProjectImage
+                      src={item.image}
                       alt={item.title}
-                      loading="lazy"
-                      onError={(e) => {
-                        if (e.currentTarget.src !== item.image) {
-                          e.currentTarget.src = item.image;
-                        }
-                      }}
+                      lang={lang}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
@@ -593,7 +909,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           ) : (
             /* Slider View for Graphics & Branding with Motion Transition and Fast CDN Loading */
             <div className="space-y-5">
-              <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
+              <div
+                className={`relative w-full mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2 ${
+                  activeTab === 'branding' ? 'max-w-2xl' : 'max-w-5xl'
+                }`}
+              >
                 {/* Left Flanking Navigation Arrow */}
                 <button
                   type="button"
@@ -604,19 +924,23 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   <ChevronLeft size={20} />
                 </button>
 
-                {/* Central Design Frame with Neon Rounded Border - Exactly matching 4:5 image proportion (640x800) */}
+                {/* Central Design Frame with Neon Rounded Border */}
                 <div
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                   onClick={() => setSelectedGraphic(graphicItems[sliderIndex])}
-                  className="w-full max-w-[420px] sm:max-w-[480px] aspect-[4/5] bg-black rounded-[22px] sm:rounded-[28px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group cursor-pointer"
+                  className={`bg-black overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group cursor-pointer ${
+                    activeTab === 'branding'
+                      ? 'w-full max-w-[420px] sm:max-w-[480px] aspect-[4/5] rounded-[22px] sm:rounded-[28px] border-2 sm:border-[2.5px] border-[#06cdff]'
+                      : 'flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff]'
+                  }`}
                 >
                   {/* Ambient Blurred Backdrop with instant low-res blur */}
                   {graphicItems[sliderIndex] && (
                     <div
                       className="absolute inset-0 bg-cover bg-center blur-2xl opacity-25 scale-110 pointer-events-none transition-all duration-500"
                       style={{
-                        backgroundImage: `url(${getFastImageUrl(graphicItems[sliderIndex].image, 200, 40)})`,
+                        backgroundImage: `url(${graphicItems[sliderIndex].image})`,
                       }}
                     />
                   )}
@@ -659,24 +983,21 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         exit="exit"
                         className="w-full h-full flex items-center justify-center relative z-10"
                       >
-                        <img
-                          src={getFastImageUrl(graphicItems[sliderIndex].image, 1400, 85)}
+                        <SafeProjectImage
+                          src={graphicItems[sliderIndex].image}
                           alt={graphicItems[sliderIndex].title}
-                          loading="eager"
-                          decoding="async"
-                          onError={(e) => {
-                            if (e.currentTarget.src !== graphicItems[sliderIndex].image) {
-                              e.currentTarget.src = graphicItems[sliderIndex].image;
-                            }
+                          onImageReplace={(newSrc) => {
+                            onUpdateGraphic?.(graphicItems[sliderIndex].id, { image: newSrc });
                           }}
+                          lang={lang}
                           className="w-full h-full object-contain select-none transition-transform duration-500 group-hover:scale-[1.01]"
                         />
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* Autoplay progress bar line at the bottom */}
-                  {isAutoplay && !isHovered && graphicItems.length > 1 && (
+                  {/* Autoplay progress bar line at the bottom for branding */}
+                  {activeTab === 'branding' && isAutoplay && !isHovered && graphicItems.length > 1 && (
                     <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 z-20 pointer-events-none">
                       <motion.div
                         key={sliderIndex}
@@ -686,6 +1007,34 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         className="h-full bg-gradient-to-r from-[#06cdff] to-[#4ce1ff] shadow-[0_0_8px_#06cdff]"
                       />
                     </div>
+                  )}
+
+                  {/* Replace/Upload Image button */}
+                  {onUpdateGraphic && graphicItems[sliderIndex] && (
+                    <label
+                      title={lang === 'bn' ? 'ছবি আপলোড/পরিবর্তন করুন' : 'Upload or replace image'}
+                      className="absolute top-3 right-14 z-30 p-2.5 rounded-xl bg-black/80 hover:bg-[#06cdff] text-neutral-300 hover:text-black transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Upload size={15} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === 'string') {
+                                onUpdateGraphic(graphicItems[sliderIndex].id, { image: reader.result });
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
                   )}
 
                   {/* Delete button */}
@@ -772,13 +1121,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               </button>
 
               <div className="max-h-[70vh] flex items-center justify-center overflow-hidden rounded-xl bg-neutral-950 mb-4">
-                <img
-                  src={getFastImageUrl(selectedGraphic.image, 1600, 90)}
+                <SafeProjectImage
+                  src={selectedGraphic.image}
                   alt={selectedGraphic.title}
-                  onError={(e) => {
-                    if (e.currentTarget.src !== selectedGraphic.image) {
-                      e.currentTarget.src = selectedGraphic.image;
-                    }
+                  lang={lang}
+                  onImageReplace={(newSrc) => {
+                    onUpdateGraphic?.(selectedGraphic.id, { image: newSrc });
                   }}
                   className="max-h-[70vh] w-auto object-contain"
                 />
