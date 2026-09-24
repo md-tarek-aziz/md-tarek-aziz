@@ -32,13 +32,13 @@ export const BottomMobileBar: React.FC<BottomMobileBarProps> = ({
             onClick={() => onNavigate(item.id)}
             className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
               activeSection === item.id
-                ? 'text-[#d4f826] font-bold'
+                ? 'text-[#06cdff] font-bold'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                activeSection === item.id ? 'bg-[#1a1a1a] shadow-[0_0_10px_rgba(212,248,38,0.3)]' : ''
+                activeSection === item.id ? 'bg-[#1a1a1a] shadow-[0_0_10px_rgba(6,205,255,0.3)]' : ''
               }`}
             >
               {item.icon}

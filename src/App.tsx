@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   defaultProfile,
   defaultVideos,
   defaultGraphics,
 } from './data/portfolioData';
-import { PortfolioProfile, GraphicProject } from './types/portfolio';
+import { PortfolioProfile, GraphicProject, VideoProject } from './types/portfolio';
 
 import { CustomCursor } from './components/CustomCursor';
 import { ProgressBar } from './components/ProgressBar';
@@ -20,7 +20,39 @@ import { BottomMobileBar } from './components/BottomMobileBar';
 import { CustomizerModal } from './components/CustomizerModal';
 
 export default function App() {
-  const [lang, setLang] = useState<'en' | 'bn'>('bn');
+  // Default to English first when anyone enters the website
+  const [lang, setLang] = useState<'en' | 'bn'>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        if (urlLang === 'bn' || urlLang === 'en') {
+          return urlLang;
+        }
+        const savedLang = localStorage.getItem('tarek_portfolio_lang');
+        if (savedLang === 'bn' || savedLang === 'en') {
+          return savedLang;
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    return 'en';
+  });
+
+  const handleToggleLang = (newLang: 'en' | 'bn') => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('tarek_portfolio_lang', newLang);
+    } catch (e) {
+      // fallback
+    }
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const [activeSection, setActiveSection] = useState('home');
   const [customizerOpen, setCustomizerOpen] = useState(false);
 
@@ -51,14 +83,60 @@ export default function App() {
     return defaultProfile;
   });
 
+  // Video projects state (stored in localStorage)
+  const [videos, setVideos] = useState<VideoProject[]>(() => {
+    try {
+      const saved = localStorage.getItem('tarek_portfolio_videos_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    return defaultVideos;
+  });
+
+  const handleAddVideo = (newVideo: Omit<VideoProject, 'id'>) => {
+    const item: VideoProject = {
+      ...newVideo,
+      id: Date.now(),
+    };
+    setVideos((prev) => {
+      const updated = [item, ...prev];
+      try {
+        localStorage.setItem('tarek_portfolio_videos_v1', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+  };
+
+  const handleDeleteVideo = (id: number | string) => {
+    setVideos((prev) => {
+      const updated = prev.filter((v) => v.id !== id);
+      try {
+        localStorage.setItem('tarek_portfolio_videos_v1', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+  };
+
   // Custom graphic projects state (stored in localStorage)
   const [graphics, setGraphics] = useState<GraphicProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_graphics_v3');
+      const saved = localStorage.getItem('tarek_portfolio_graphics_v5');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          const existingImages = new Set(parsed.map((p: GraphicProject) => p.image));
+          const missingDefaults = defaultGraphics.filter((dg) => !existingImages.has(dg.image));
+          return [...parsed, ...missingDefaults];
         }
       }
     } catch (e) {
@@ -75,7 +153,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v3', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v5', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -87,7 +165,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = prev.filter((g) => g.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v3', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v5', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -132,7 +210,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white dot-pattern selection:bg-[#d4f826] selection:text-black">
+    <div className="min-h-screen bg-[#0a0a0a] text-white dot-pattern selection:bg-[#06cdff] selection:text-black">
       {/* Top Scroll Indicator */}
       <ProgressBar />
 
@@ -143,7 +221,7 @@ export default function App() {
       <Navbar
         profile={profile}
         lang={lang}
-        onToggleLang={(l) => setLang(l)}
+        onToggleLang={handleToggleLang}
         activeSection={activeSection}
         onNavigate={handleNavigate}
         onOpenCustomizer={() => setCustomizerOpen(true)}
@@ -164,8 +242,10 @@ export default function App() {
 
         {/* Section: My Projects (Video Player, Graphic Grid & Lightbox) */}
         <ProjectsSection
-          videos={defaultVideos}
+          videos={videos}
           graphics={graphics}
+          onAddVideo={handleAddVideo}
+          onDeleteVideo={handleDeleteVideo}
           onAddGraphic={handleAddGraphic}
           onDeleteGraphic={handleDeleteGraphic}
           lang={lang}

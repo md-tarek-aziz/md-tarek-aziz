@@ -28,14 +28,14 @@ export const Footer: React.FC<FooterProps> = ({ profile, lang }) => {
           {/* Brand & Bio */}
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-[#d4f826] flex items-center justify-center text-black font-extrabold text-base select-none shadow-[0_0_15px_rgba(212,248,38,0.4)]">
-                M
+              <div className="w-10 h-10 rounded-xl bg-[#06cdff] flex items-center justify-center text-black font-extrabold text-base select-none shadow-[0_0_15px_rgba(6,205,255,0.4)]">
+                {profile.name ? profile.name.trim().charAt(0) : 'T'}
               </div>
               <div>
                 <h4 className="font-bold text-white text-lg block leading-tight">
-                  {profile.name || 'Mohiuddin Mahim'}
+                  {profile.name || 'Md Tarek Aziz'}
                 </h4>
-                <p className="text-xs font-bold text-[#d4f826] tracking-wider uppercase block">
+                <p className="text-xs font-bold text-[#06cdff] tracking-wider uppercase block">
                   VISUALIZER & VIDEO EDITOR
                 </p>
               </div>
@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ profile, lang }) => {
             ))}
 
             <motion.button
-              whileHover={{ scale: 1.08, borderColor: '#d4f826', backgroundColor: '#1f1f1f' }}
+              whileHover={{ scale: 1.08, borderColor: '#06cdff', backgroundColor: '#1f1f1f' }}
               whileTap={{ scale: 0.92 }}
               onClick={scrollToTop}
               className="w-10 h-10 rounded-xl bg-[#141414] border border-[#262626] text-white flex items-center justify-center transition-all cursor-pointer shadow-md ml-2"

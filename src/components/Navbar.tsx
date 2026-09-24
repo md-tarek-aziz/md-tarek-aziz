@@ -35,14 +35,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => onNavigate('home')}
           className="flex items-center gap-2 sm:gap-3 cursor-pointer group"
         >
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#d4f826] rounded-xl flex items-center justify-center text-black shrink-0 transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(212,248,38,0.4)]">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#06cdff] rounded-xl flex items-center justify-center text-black shrink-0 transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(6,205,255,0.4)]">
             <Zap size={20} fill="black" className="text-black" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-xs sm:text-sm leading-tight whitespace-nowrap text-white group-hover:text-[#d4f826] transition-colors">
+            <span className="font-bold text-xs sm:text-sm leading-tight whitespace-nowrap text-white group-hover:text-[#06cdff] transition-colors">
               {profile.name}
             </span>
-            <span className="text-[8px] sm:text-[10px] text-[#d4f826] uppercase tracking-widest font-bold whitespace-nowrap">
+            <span className="text-[8px] sm:text-[10px] text-[#06cdff] uppercase tracking-widest font-bold whitespace-nowrap">
               Visualizer & Video Editor
             </span>
           </div>
@@ -56,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onNavigate(sec)}
               className={`px-3 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer ${
                 activeSection === sec
-                  ? 'bg-[#1a1a1a] text-[#d4f826] font-bold shadow-[0_0_10px_rgba(212,248,38,0.2)]'
+                  ? 'bg-[#1a1a1a] text-[#06cdff] font-bold shadow-[0_0_10px_rgba(6,205,255,0.2)]'
                   : 'hover:text-white'
               }`}
             >
@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => onToggleLang('en')}
               className={`px-1 rounded cursor-pointer transition-colors ${
-                lang === 'en' ? 'text-[#d4f826]' : 'text-neutral-400 hover:text-white'
+                lang === 'en' ? 'text-[#06cdff]' : 'text-neutral-400 hover:text-white'
               }`}
             >
               EN
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => onToggleLang('bn')}
               className={`px-1 rounded cursor-pointer transition-colors ${
-                lang === 'bn' ? 'text-[#d4f826]' : 'text-neutral-400 hover:text-white'
+                lang === 'bn' ? 'text-[#06cdff]' : 'text-neutral-400 hover:text-white'
               }`}
             >
               বাং
@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Let's Talk CTA */}
           <button
             onClick={() => onNavigate('contact')}
-            className="bg-[#d4f826] text-black px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold flex items-center gap-1.5 hover:bg-[#c2e223] transition-all shadow-[0_0_15px_rgba(212,248,38,0.3)] hover:scale-105 cursor-pointer"
+            className="bg-[#06cdff] text-black px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold flex items-center gap-1.5 hover:bg-[#05b8e6] transition-all shadow-[0_0_15px_rgba(6,205,255,0.3)] hover:scale-105 cursor-pointer"
           >
             <MessageCircle size={14} className="fill-black text-black" />
             <span>{t.talk}</span>
@@ -112,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenCustomizer}
               title="Edit Profile"
-              className="p-1.5 rounded-full text-neutral-400 hover:text-[#d4f826] hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+              className="p-1.5 rounded-full text-neutral-400 hover:text-[#06cdff] hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             >
               <Settings size={15} />
             </button>

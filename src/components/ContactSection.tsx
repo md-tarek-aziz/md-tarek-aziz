@@ -78,11 +78,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
       {/* Pill Header */}
       <div className="flex flex-col items-center mb-12 text-center">
         <motion.div
-          whileHover={{ scale: 1.05, boxShadow: '0 0 22px rgba(212,248,38,0.55)' }}
-          whileTap={{ scale: 0.95, boxShadow: '0 0 10px rgba(212,248,38,0.3)' }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#0a0a0a] border border-[#d4f826] rounded-full text-xs font-bold text-[#d4f826] mb-4 shadow-[0_0_15px_rgba(212,248,38,0.35)] cursor-pointer hover:border-[#d4f826] transition-all duration-300 select-none"
+          whileHover={{ scale: 1.05, boxShadow: '0 0 22px rgba(6,205,255,0.55)' }}
+          whileTap={{ scale: 0.95, boxShadow: '0 0 10px rgba(6,205,255,0.3)' }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#0a0a0a] border border-[#06cdff] rounded-full text-xs font-bold text-[#06cdff] mb-4 shadow-[0_0_15px_rgba(6,205,255,0.35)] cursor-pointer hover:border-[#06cdff] transition-all duration-300 select-none"
         >
-          <ExternalLink size={14} className="text-[#d4f826]" />
+          <ExternalLink size={14} className="text-[#06cdff]" />
           <span>{lang === 'bn' ? 'যোগাযোগ করুন' : 'CONTACT ME'}</span>
         </motion.div>
 
@@ -95,11 +95,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
         >
           {lang === 'bn' ? (
             <>
-              সরাসরি <span className="text-[#d4f826]">যোগাযোগ</span>
+              সরাসরি <span className="text-[#06cdff]">যোগাযোগ</span>
             </>
           ) : (
             <>
-              Get In <span className="text-[#d4f826]">Touch</span>
+              Get In <span className="text-[#06cdff]">Touch</span>
             </>
           )}
         </motion.h2>
@@ -117,12 +117,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
           <motion.div
             key={card.title}
             whileHover={{ scale: 1.03 }}
-            className="border border-[#262626] rounded-3xl p-6 sm:p-7 bg-[#0a0a0a] hover:border-[#d4f826]/30 transition-all flex flex-col justify-between hover:shadow-[0_0_20px_rgba(212,248,38,0.25)]"
+            className="border border-[#262626] rounded-3xl p-6 sm:p-7 bg-[#0a0a0a] hover:border-[#06cdff]/30 transition-all flex flex-col justify-between hover:shadow-[0_0_20px_rgba(6,205,255,0.25)]"
           >
             <div>
               {/* Header: Icon + Titles */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-[#262626] flex items-center justify-center text-[#d4f826] shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-[#1a1a1a] border border-[#262626] flex items-center justify-center text-[#06cdff] shrink-0">
                   {card.icon}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -134,7 +134,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
                         type="button"
                         onClick={handleCopyEmail}
                         title="Copy email"
-                        className="p-1 rounded bg-[#1a1a1a] hover:bg-[#262626] text-neutral-400 hover:text-[#d4f826] transition-colors cursor-pointer text-xs flex items-center gap-1 shrink-0"
+                        className="p-1 rounded bg-[#1a1a1a] hover:bg-[#262626] text-neutral-400 hover:text-[#06cdff] transition-colors cursor-pointer text-xs flex items-center gap-1 shrink-0"
                       >
                         {copied ? <Check size={12} className="text-[#00e676]" /> : <Copy size={12} />}
                         <span className="text-[10px]">{copied ? 'Copied' : 'Copy'}</span>
@@ -155,7 +155,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
               href={card.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3 border border-[#262626] rounded-2xl text-sm font-bold text-white hover:bg-[#d4f826] hover:text-black hover:border-[#d4f826] transition-all flex items-center justify-center gap-2 cursor-pointer mt-auto"
+              className="w-full py-3 border border-[#262626] rounded-2xl text-sm font-bold text-white hover:bg-[#06cdff] hover:text-black hover:border-[#06cdff] transition-all flex items-center justify-center gap-2 cursor-pointer mt-auto"
             >
               <span>{card.action}</span>
               <ExternalLink size={14} />
@@ -173,23 +173,23 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
             <span>Available for Projects</span>
           </span>
 
-          <span className="px-4 py-2 bg-[#0a0a0a] rounded-full text-xs font-bold text-[#d4f826] border border-[#d4f826]/40 flex items-center gap-2">
-            <Clock size={14} className="text-[#d4f826]" />
+          <span className="px-4 py-2 bg-[#0a0a0a] rounded-full text-xs font-bold text-[#06cdff] border border-[#06cdff]/40 flex items-center gap-2">
+            <Clock size={14} className="text-[#06cdff]" />
             <span>Response: Within 2 Hours</span>
           </span>
         </div>
 
         {/* Addresses Box with Lime Outline Container */}
-        <div className="border border-[#d4f826]/30 rounded-3xl p-4 sm:p-6 mb-5 shadow-[0_0_15px_rgba(212,248,38,0.1)]">
+        <div className="border border-[#06cdff]/30 rounded-3xl p-4 sm:p-6 mb-5 shadow-[0_0_15px_rgba(6,205,255,0.1)]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Permanent Address */}
             <motion.div
               whileHover={{ scale: 1.02, y: -3 }}
-              className="p-5 sm:p-6 border border-[#d4f826] rounded-2xl bg-[#0a0a0a] hover:shadow-[0_0_20px_rgba(212,248,38,0.4)] transition-all duration-300"
+              className="p-5 sm:p-6 border border-[#06cdff] rounded-2xl bg-[#0a0a0a] hover:shadow-[0_0_20px_rgba(6,205,255,0.4)] transition-all duration-300"
             >
-              <p className="text-xs text-[#d4f826] font-bold mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <span className="p-1 rounded-full bg-[#d4f826]/10">
-                  <Home size={12} className="text-[#d4f826]" />
+              <p className="text-xs text-[#06cdff] font-bold mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <span className="p-1 rounded-full bg-[#06cdff]/10">
+                  <Home size={12} className="text-[#06cdff]" />
                 </span>
                 <span>PERMANENT ADDRESS</span>
               </p>
@@ -202,7 +202,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
             {/* Present Address */}
             <motion.div
               whileHover={{ scale: 1.02, y: -3 }}
-              className="p-5 sm:p-6 border border-[#d4f826] rounded-2xl bg-[#0a0a0a] hover:shadow-[0_0_20px_rgba(212,248,38,0.4)] transition-all duration-300"
+              className="p-5 sm:p-6 border border-[#06cdff] rounded-2xl bg-[#0a0a0a] hover:shadow-[0_0_20px_rgba(6,205,255,0.4)] transition-all duration-300"
             >
               <p className="text-xs text-neutral-400 font-bold mb-3 flex items-center gap-2 uppercase tracking-wide">
                 <span className="p-1 rounded-full bg-neutral-800">
@@ -236,15 +236,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
             <span>Chat on WhatsApp</span>
           </motion.a>
 
-          {/* Button 2: Direct Email (Neon Lime #d4f826) */}
+          {/* Button 2: Direct Email (Neon Lime #06cdff) */}
           <motion.a
-            whileHover={{ scale: 1.01, boxShadow: '0 0 25px rgba(212, 248, 38, 0.6)' }}
+            whileHover={{ scale: 1.01, boxShadow: '0 0 25px rgba(6, 205, 255, 0.6)' }}
             whileTap={{ scale: 0.99 }}
             transition={{ type: 'spring', stiffness: 300 }}
             href={gmailComposeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#d4f826] text-black w-full py-3.5 sm:py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#c2e223] transition-all text-sm sm:text-base cursor-pointer shadow-lg select-none"
+            className="bg-[#06cdff] text-black w-full py-3.5 sm:py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#05b8e6] transition-all text-sm sm:text-base cursor-pointer shadow-lg select-none"
           >
             <Mail size={18} className="text-black" />
             <span>Direct Email</span>

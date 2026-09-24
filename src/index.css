@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-neon: #d4f826;
+  --color-brand-neon: #06cdff;
   --font-mono: "JetBrains Mono", monospace;
 }
 
@@ -33,5 +33,5 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4f826;
+  background: #06cdff;
 }

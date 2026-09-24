@@ -17,7 +17,7 @@ export const ProgressBar: React.FC = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-1 bg-[#d4f826] origin-left z-[9999] transition-transform duration-75"
+      className="fixed top-0 left-0 right-0 h-1 bg-[#06cdff] origin-left z-[9999] transition-transform duration-75"
       style={{ transform: `scaleX(${scrollProgress})` }}
     />
   );

@@ -38,34 +38,54 @@ export const defaultProfile: PortfolioProfile = {
   ],
 };
 
-export const defaultVideos: VideoProject[] = [
-  {
-    id: 1,
-    title: 'Engaging Islamic Reel / Podcast Cut',
-    desc: 'A short-form video edit (Reel/Short) created from an Islamic podcast discussion. The goal was to transform a thoughtful, spoken-word message into high-retention, engaging vertical content for social media platforms (TikTok, Instagram Reels, and YouTube Shorts).',
-    type: 'vimeo',
-    url: 'https://player.vimeo.com/video/1228541127',
-  },
-  {
-    id: 2,
-    title: 'Cinematic Islamic Short Reel Edit | Sunnah Reminder & Sound Design',
-    desc: 'A clean, aesthetic, and cinematic short-form video edit created to highlight a beautiful Sunnah of Prophet Muhammad (ﷺ) regarding eating and drinking with the right hand with custom sound design and kinetic typography.',
-    type: 'vimeo',
-    url: 'https://player.vimeo.com/video/1228476058',
-  },
-  {
-    id: 3,
-    title: 'Commercial Motion Video Project',
-    desc: 'High-energy kinetic visualizer, commercial ad editing, and product showcase with seamless sound design and color grading.',
-    type: 'vimeo',
-    url: 'https://player.vimeo.com/video/1228476593',
-  },
-];
+export const defaultVideos: VideoProject[] = [];
 
 export const defaultGraphics: GraphicProject[] = [
   {
     id: 1,
-    title: 'Commercial Product Ad Design',
+    title: 'Smart Watch Commercial Social Media Ad Banner',
+    desc: 'High-converting smartwatch promotional visual ad campaign designed for digital marketing and social media engagement.',
+    image: 'https://i.postimg.cc/0QrrDvN8/3711-MD-Tarek-Aziz-(whats)-Copy.png',
+    category: 'branding',
+  },
+  {
+    id: 2,
+    title: 'Creative Product Promotional Poster Design',
+    desc: 'Striking commercial product poster composition with professional lighting, typography, and brand storytelling.',
+    image: 'https://i.postimg.cc/bYW3B046/3707-Mahfujur-Rahman-Product-Poster-Design-02.jpg',
+    category: 'branding',
+  },
+  {
+    id: 3,
+    title: 'Social Media Brand Advertisement Campaign',
+    desc: 'Modern, vibrant visual advertising banner crafted for maximum click-through rates and high conversion.',
+    image: 'https://i.postimg.cc/rpf9C5SP/ads.png',
+    category: 'branding',
+  },
+  {
+    id: 4,
+    title: 'Commercial Product Packaging & Brand Showcase',
+    desc: 'Clean, minimalist product design and packaging visual highlighting key features and luxury brand aesthetics.',
+    image: 'https://i.postimg.cc/d1G9D7Wv/prodac.png',
+    category: 'branding',
+  },
+  {
+    id: 5,
+    title: 'Luxury Perfume Brand Advertising Design',
+    desc: 'Premium perfume bottle commercial visual ad featuring elegant color harmony, atmospheric lighting, and brand identity.',
+    image: 'https://i.postimg.cc/CKxG1dWq/MD-TAREK-AZIZ-3711luxure-perfume.png',
+    category: 'branding',
+  },
+  {
+    id: 6,
+    title: 'Visual Identity & Creative Brand Composition',
+    desc: 'Signature branding graphic poster blending kinetic typography with striking artistic visual direction.',
+    image: 'https://i.postimg.cc/wT8VKkjv/ta.png',
+    category: 'branding',
+  },
+  {
+    id: 7,
+    title: 'Commercial Brand & Product Ad Design',
     desc: 'High-converting social media promotional banner & product visual composition',
     image: 'https://i.postimg.cc/5tMpwqDh/ads3.png',
     category: 'graphic',

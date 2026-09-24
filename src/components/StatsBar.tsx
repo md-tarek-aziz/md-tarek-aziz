@@ -17,7 +17,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({ lang }) => {
   ];
 
   return (
-    <section className="mt-16 rounded-3xl p-6 sm:p-8 bg-[#0a0a0a]/70 backdrop-blur-xl border border-[#d4f826]/20 shadow-2xl flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-[#262626]/60">
+    <section className="mt-16 rounded-3xl p-6 sm:p-8 bg-[#0a0a0a]/70 backdrop-blur-xl border border-[#06cdff]/20 shadow-2xl flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-[#262626]/60">
       {stats.map((item) => (
         <motion.div
           key={item.label}
@@ -27,18 +27,18 @@ export const StatsBar: React.FC<StatsBarProps> = ({ lang }) => {
           className="flex-1 text-center cursor-pointer relative p-4 rounded-2xl transition-all duration-300 group"
         >
           {/* Bottom underline accent on hover */}
-          <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-transparent group-hover:bg-[#d4f826] transition-all duration-300" />
+          <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-transparent group-hover:bg-[#06cdff] transition-all duration-300" />
           {/* Subtle neon glow on hover */}
-          <div className="absolute inset-0 rounded-2xl bg-[#d4f826]/0 group-hover:bg-[#d4f826]/5 transition-all duration-300 group-hover:shadow-[0_0_25px_rgba(212,248,38,0.15)] pointer-events-none" />
+          <div className="absolute inset-0 rounded-2xl bg-[#06cdff]/0 group-hover:bg-[#06cdff]/5 transition-all duration-300 group-hover:shadow-[0_0_25px_rgba(6,205,255,0.15)] pointer-events-none" />
 
           <div
             className={`text-3xl sm:text-4xl font-extrabold flex justify-center items-center gap-1 relative z-10 ${
-              item.highlight ? 'text-[#d4f826]' : 'text-white'
+              item.highlight ? 'text-[#06cdff]' : 'text-white'
             }`}
           >
             {item.value}
             {item.suffix && (
-              <span className={`text-xl sm:text-2xl ${item.highlight ? 'text-[#d4f826]' : 'text-white'}`}>
+              <span className={`text-xl sm:text-2xl ${item.highlight ? 'text-[#06cdff]' : 'text-white'}`}>
                 {item.suffix}
               </span>
             )}

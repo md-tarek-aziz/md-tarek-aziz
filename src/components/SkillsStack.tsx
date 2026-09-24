@@ -30,20 +30,20 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
     switch (type) {
       case 'video':
       case 'clapperboard':
-        return <Clapperboard size={22} className="text-[#d4f826]" />;
+        return <Clapperboard size={22} className="text-[#06cdff]" />;
       case 'palette':
-        return <Palette size={22} className="text-[#d4f826]" />;
+        return <Palette size={22} className="text-[#06cdff]" />;
       case 'eye':
-        return <Eye size={22} className="text-[#d4f826]" />;
+        return <Eye size={22} className="text-[#06cdff]" />;
       case 'file-text':
       case 'feather':
-        return <FileText size={22} className="text-[#d4f826]" />;
+        return <FileText size={22} className="text-[#06cdff]" />;
       case 'mic':
-        return <Mic size={22} className="text-[#d4f826]" />;
+        return <Mic size={22} className="text-[#06cdff]" />;
       case 'users':
-        return <Users size={22} className="text-[#d4f826]" />;
+        return <Users size={22} className="text-[#06cdff]" />;
       default:
-        return <Star size={22} className="text-[#d4f826]" />;
+        return <Star size={22} className="text-[#06cdff]" />;
     }
   };
 
@@ -53,11 +53,11 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
       <div className="flex flex-col items-center mb-14 text-center">
         {/* Star Badge Pill: Stays firmly in place with no scroll animation. On cursor hover, lighting stroke and glow appears */}
         <motion.div
-          whileHover={{ scale: 1.05, boxShadow: '0 0 22px rgba(212,248,38,0.55)' }}
-          whileTap={{ scale: 0.95, boxShadow: '0 0 10px rgba(212,248,38,0.3)' }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#141414] border border-[#2a2a2a] rounded-full text-xs font-bold text-[#d4f826] mb-4 cursor-pointer hover:border-[#d4f826] transition-all duration-300 select-none"
+          whileHover={{ scale: 1.05, boxShadow: '0 0 22px rgba(6,205,255,0.55)' }}
+          whileTap={{ scale: 0.95, boxShadow: '0 0 10px rgba(6,205,255,0.3)' }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#141414] border border-[#2a2a2a] rounded-full text-xs font-bold text-[#06cdff] mb-4 cursor-pointer hover:border-[#06cdff] transition-all duration-300 select-none"
         >
-          <Star size={14} className="fill-[#d4f826] text-[#d4f826]" />
+          <Star size={14} className="fill-[#06cdff] text-[#06cdff]" />
           <span>{t.title.toUpperCase()}</span>
         </motion.div>
 
@@ -75,11 +75,11 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
         >
           {lang === 'bn' ? (
             <>
-              মূল দক্ষতা ও <span className="text-[#d4f826]">গুণাবলি</span>
+              মূল দক্ষতা ও <span className="text-[#06cdff]">গুণাবলি</span>
             </>
           ) : (
             <>
-              Core Expertise & <span className="text-[#d4f826]">Skills</span>
+              Core Expertise & <span className="text-[#06cdff]">Skills</span>
             </>
           )}
         </motion.h2>
@@ -92,18 +92,18 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
             key={item.id}
             whileHover={{ scale: 1.02, y: -3 }}
             transition={{ duration: 0.25 }}
-            className="p-6 sm:p-7 rounded-[24px] bg-[#0c0c0c] border border-[#222222] hover:border-[#d4f826]/60 hover:shadow-[0_0_22px_rgba(212,248,38,0.16)] transition-all duration-300 group cursor-default"
+            className="p-6 sm:p-7 rounded-[24px] bg-[#0c0c0c] border border-[#222222] hover:border-[#06cdff]/60 hover:shadow-[0_0_22px_rgba(6,205,255,0.16)] transition-all duration-300 group cursor-default"
           >
             {/* Horizontal Layout: Icon on the side, Content on right */}
             <div className="flex items-start gap-4 sm:gap-5">
               {/* Left Side Icon Box */}
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-[#141414] border border-[#262626] group-hover:border-[#d4f826]/50 group-hover:bg-[#1a1a1a] transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-[#141414] border border-[#262626] group-hover:border-[#06cdff]/50 group-hover:bg-[#1a1a1a] transition-all duration-300">
                 {getIcon(item.icon)}
               </div>
 
               {/* Right Side Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide uppercase group-hover:text-[#d4f826] transition-colors">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide uppercase group-hover:text-[#06cdff] transition-colors">
                   {lang === 'bn' ? item.titleBn : item.titleEn}
                 </h3>
 
@@ -117,7 +117,7 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
                     {item.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-3.5 py-1 rounded-full text-xs font-semibold bg-[#181818] border border-[#d4f826]/30 text-[#d4f826] transition-colors shadow-sm"
+                        className="px-3.5 py-1 rounded-full text-xs font-semibold bg-[#181818] border border-[#06cdff]/30 text-[#06cdff] transition-colors shadow-sm"
                       >
                         {tag}
                       </span>
@@ -133,12 +133,12 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
       {/* Matrix Modal Trigger */}
       <div className="flex justify-center">
         <motion.button
-          whileHover={{ scale: 1.04, borderColor: '#d4f826', boxShadow: '0 0 20px rgba(212,248,38,0.25)' }}
+          whileHover={{ scale: 1.04, borderColor: '#06cdff', boxShadow: '0 0 20px rgba(6,205,255,0.25)' }}
           whileTap={{ scale: 0.96 }}
           onClick={() => setModalOpen(true)}
           className="px-6 py-3.5 rounded-full bg-[#141414] border border-[#262626] text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all shadow-lg cursor-pointer"
         >
-          <Sliders size={16} className="text-[#d4f826]" />
+          <Sliders size={16} className="text-[#06cdff]" />
           <span className="text-white">{t.proficiency}</span>
         </motion.button>
       </div>
@@ -165,7 +165,7 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
               </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#d4f826]/10 border border-[#d4f826]/30 flex items-center justify-center text-[#d4f826]">
+                <div className="w-10 h-10 rounded-xl bg-[#06cdff]/10 border border-[#06cdff]/30 flex items-center justify-center text-[#06cdff]">
                   <Sliders size={20} />
                 </div>
                 <div>
@@ -183,11 +183,11 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
                   <div key={tool.name} className="p-3.5 rounded-xl bg-[#141414] border border-[#262626]">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 size={14} className="text-[#d4f826]" />
+                        <CheckCircle2 size={14} className="text-[#06cdff]" />
                         <span className="text-sm font-bold text-white">{tool.name}</span>
                         <span className="text-[10px] text-neutral-400 font-mono">({tool.category})</span>
                       </div>
-                      <span className="text-xs font-mono font-bold text-[#d4f826]">
+                      <span className="text-xs font-mono font-bold text-[#06cdff]">
                         {tool.level}%
                       </span>
                     </div>
@@ -197,7 +197,7 @@ export const SkillsStack: React.FC<SkillsStackProps> = ({ lang }) => {
                         initial={{ width: 0 }}
                         animate={{ width: `${tool.level}%` }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
-                        className="h-full bg-[#d4f826] rounded-full shadow-[0_0_10px_rgba(212,248,38,0.5)]"
+                        className="h-full bg-[#06cdff] rounded-full shadow-[0_0_10px_rgba(6,205,255,0.5)]"
                       />
                     </div>
                   </div>
