@@ -48,7 +48,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-14">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#ccff00] mb-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#06cdff] mb-2">
             <span>04.</span>
             <span>{lang === 'bn' ? 'সার্ভিস ও প্রজেক্ট এস্টিমেট' : 'Services & Instant Estimator'}</span>
           </div>
@@ -67,10 +67,10 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
           {services.map((serv) => (
             <div
               key={serv.id}
-              className="p-6 rounded-2xl bg-[#0c0d15] border border-neutral-800 flex flex-col justify-between hover:border-[#ccff00]/40 transition-colors"
+              className="p-6 rounded-2xl bg-[#0c0d15] border border-neutral-800 flex flex-col justify-between hover:border-[#06cdff]/40 transition-colors"
             >
               <div>
-                <div className="text-xs font-mono text-[#ccff00] mb-2">
+                <div className="text-xs font-mono text-[#06cdff] mb-2">
                   {serv.category.toUpperCase()}
                 </div>
                 <h3 className="text-lg font-bold text-white font-display mb-2">
@@ -81,7 +81,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                 </p>
 
                 <div className="mb-4 pb-4 border-b border-neutral-800">
-                  <div className="text-xl font-bold text-[#ccff00] font-mono tabular-nums">
+                  <div className="text-xl font-bold text-[#06cdff] font-mono tabular-nums">
                     {serv.estimatedPrice}
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 font-mono mt-1">
@@ -94,7 +94,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                 <ul className="space-y-2 mb-6">
                   {serv.highlights.map((h, hIdx) => (
                     <li key={hIdx} className="flex items-start gap-2 text-xs text-neutral-300">
-                      <Check className="w-3.5 h-3.5 text-[#ccff00] shrink-0 mt-0.5" />
+                      <Check className="w-3.5 h-3.5 text-[#06cdff] shrink-0 mt-0.5" />
                       <span>{h}</span>
                     </li>
                   ))}
@@ -103,7 +103,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
 
               <button
                 onClick={() => onSelectPackageForBooking(`Inquiry for package: ${serv.title} (${serv.estimatedPrice})`)}
-                className="w-full py-2.5 px-3 rounded-full border border-neutral-700 hover:border-[#ccff00] bg-neutral-900 hover:bg-[#ccff00] hover:text-black text-xs font-semibold text-white transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-3 rounded-full border border-neutral-700 hover:border-[#06cdff] bg-neutral-900 hover:bg-[#06cdff] hover:text-black text-xs font-semibold text-white transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>{lang === 'bn' ? 'প্যাকেজ বুক করুন' : 'Book Package'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -113,10 +113,10 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
         </div>
 
         {/* Live Interactive Project Calculator Card */}
-        <div className="rounded-2xl border border-[#ccff00]/30 bg-[#0c0c10] p-6 sm:p-10 shadow-2xl">
+        <div className="rounded-2xl border border-[#06cdff]/30 bg-[#0c0c10] p-6 sm:p-10 shadow-2xl">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-[#ccff00]/10 border border-[#ccff00]/30 flex items-center justify-center">
-              <Calculator className="w-5 h-5 text-[#ccff00]" />
+            <div className="w-9 h-9 rounded-xl bg-[#06cdff]/10 border border-[#06cdff]/30 flex items-center justify-center">
+              <Calculator className="w-5 h-5 text-[#06cdff]" />
             </div>
             <div>
               <h3 className="text-xl sm:text-2xl font-bold text-white font-display">
@@ -150,7 +150,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                       onClick={() => setProjectType(t.id as any)}
                       className={`p-3 rounded-xl border text-xs font-medium text-left transition-all cursor-pointer ${
                         projectType === t.id
-                          ? 'bg-[#ccff00]/10 border-[#ccff00] text-white'
+                          ? 'bg-[#06cdff]/10 border-[#06cdff] text-white'
                           : 'bg-neutral-900/80 border-neutral-800 text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -176,7 +176,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                       onClick={() => setVolume(v.id as any)}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                         volume === v.id
-                          ? 'bg-[#ccff00]/10 border-[#ccff00] text-white'
+                          ? 'bg-[#06cdff]/10 border-[#06cdff] text-white'
                           : 'bg-neutral-900/80 border-neutral-800 text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -198,7 +198,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                       type="checkbox"
                       checked={needsGrading}
                       onChange={(e) => setNeedsGrading(e.target.checked)}
-                      className="accent-[#ccff00] w-4 h-4 rounded cursor-pointer"
+                      className="accent-[#06cdff] w-4 h-4 rounded cursor-pointer"
                     />
                     <span>DaVinci Cinema Color Grade (+ $80)</span>
                   </label>
@@ -208,7 +208,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                       type="checkbox"
                       checked={needsSoundDesign}
                       onChange={(e) => setNeedsSoundDesign(e.target.checked)}
-                      className="accent-[#ccff00] w-4 h-4 rounded cursor-pointer"
+                      className="accent-[#06cdff] w-4 h-4 rounded cursor-pointer"
                     />
                     <span>Foley & Sound Design Pass (+ $60)</span>
                   </label>
@@ -218,7 +218,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
                       type="checkbox"
                       checked={isRush}
                       onChange={(e) => setIsRush(e.target.checked)}
-                      className="accent-[#ccff00] w-4 h-4 rounded cursor-pointer"
+                      className="accent-[#06cdff] w-4 h-4 rounded cursor-pointer"
                     />
                     <span>Rush Express 48h Delivery (+ $120)</span>
                   </label>
@@ -229,10 +229,10 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
             {/* Calculated Outcome Box */}
             <div className="lg:col-span-4 p-6 rounded-2xl bg-[#090a10] border border-neutral-800 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-mono text-[#ccff00] block uppercase tracking-wider">
+                <span className="text-xs font-mono text-[#06cdff] block uppercase tracking-wider">
                   Estimated Investment
                 </span>
-                <div className="mt-2 text-4xl sm:text-5xl font-bold text-[#ccff00] font-mono tabular-nums">
+                <div className="mt-2 text-4xl sm:text-5xl font-bold text-[#06cdff] font-mono tabular-nums">
                   ${estimatedTotal}
                 </div>
                 <div className="mt-1 text-xs text-neutral-400 font-mono">
@@ -258,7 +258,7 @@ export const PricingEstimator: React.FC<PricingEstimatorProps> = ({
               <div className="mt-8">
                 <button
                   onClick={handleBookEstimate}
-                  className="w-full py-3.5 px-4 rounded-full bg-[#ccff00] hover:bg-[#b8e600] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-102 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-4 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,205,255,0.3)] hover:scale-102 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>{lang === 'bn' ? 'এই এস্টিমেটে মেসেজ পাঠান' : 'Lock In This Estimate'}</span>
                   <ArrowRight className="w-4 h-4" />

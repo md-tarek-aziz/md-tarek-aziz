@@ -86,33 +86,20 @@ export default function App() {
   // Video projects state (stored in localStorage)
   const [videos, setVideos] = useState<VideoProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_videos_v10');
+      const saved = localStorage.getItem('tarek_portfolio_videos_v18');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const defaultUrlMap = new Map(defaultVideos.map((dv) => [dv.url, dv]));
-          const updated = parsed.map((p: VideoProject) => {
-            const dv = defaultUrlMap.get(p.url);
-            return dv
-              ? {
-                  ...p,
-                  thumbnail: dv.thumbnail,
-                  format: dv.format,
-                  aspectRatio: dv.aspectRatio,
-                  title: dv.title,
-                  desc: dv.desc,
-                }
-              : p;
-          });
-          const existingUrls = new Set(updated.map((p: VideoProject) => p.url));
-          const missingDefaults = defaultVideos.filter((dv) => !existingUrls.has(dv.url));
-          const merged = [...missingDefaults, ...updated];
-          localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(merged));
-          return merged;
+          const userCustomVideos = parsed.filter(
+            (p: VideoProject) => !defaultVideos.some((dv) => dv.url === p.url)
+          );
+          const combined = [...userCustomVideos, ...defaultVideos];
+          localStorage.setItem('tarek_portfolio_videos_v18', JSON.stringify(combined));
+          return combined;
         }
       }
       // Migrate or initialize with all defaultVideos with proper formats
-      localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(defaultVideos));
+      localStorage.setItem('tarek_portfolio_videos_v18', JSON.stringify(defaultVideos));
     } catch (e) {
       // fallback
     }
@@ -127,7 +114,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v18', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -139,7 +126,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = prev.filter((v) => v.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v18', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }

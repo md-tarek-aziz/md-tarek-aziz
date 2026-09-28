@@ -13,7 +13,6 @@ import {
   Star,
   Play,
   Plus,
-  Trash2,
   ImagePlus,
   Upload,
   Sparkles,
@@ -216,14 +215,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const AUTOPLAY_INTERVAL = 4000;
 
-  // Track which video is currently playing inside the slider (null shows video thumbnail)
-  const [sliderPlayingId, setSliderPlayingId] = useState<string | number | null>(null);
-
   // Lightbox modal state for graphics
   const [selectedGraphic, setSelectedGraphic] = useState<GraphicProject | null>(null);
 
   // Active video player modal state
   const [activeVideoModal, setActiveVideoModal] = useState<VideoProject | null>(null);
+  const [sliderPlayingId, setSliderPlayingId] = useState<string | number | null>(null);
 
   // Add Video Modal state
   const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
@@ -342,19 +339,16 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   }, [sliderIndex, currentItemsCount]);
 
   const handleNextSlider = () => {
-    setSliderPlayingId(null);
     setSlideDirection(1);
     setSliderIndex((prev) => (prev + 1) % Math.max(1, currentItemsCount));
   };
 
   const handlePrevSlider = () => {
-    setSliderPlayingId(null);
     setSlideDirection(-1);
     setSliderIndex((prev) => (prev - 1 + currentItemsCount) % Math.max(1, currentItemsCount));
   };
 
   const handleSelectSlide = (idx: number) => {
-    setSliderPlayingId(null);
     setSlideDirection(idx >= sliderIndex ? 1 : -1);
     setSliderIndex(idx);
   };
@@ -645,297 +639,120 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           ) : (
             <div className="space-y-6">
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                   {videos.map((vid) => {
                     const isReels = vid.aspectRatio === '9:16' || vid.format === 'reels';
                     return (
                       <motion.div
                         key={vid.id}
-                        whileHover={{ y: -5 }}
+                        whileHover={{ y: -8, scale: 1.02 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
                         onClick={() => setActiveVideoModal(vid)}
-                        className="group border border-[#262626] bg-[#0a0a0a] rounded-2xl p-3.5 transition-all hover:border-[#06cdff]/40 hover:shadow-[0_0_20px_rgba(6,205,255,0.25)] cursor-pointer flex flex-col justify-between relative h-full"
+                        className="group border border-[#222222] hover:border-[#06cdff] bg-[#0c0c0c] rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(6,205,255,0.38)] cursor-pointer flex flex-col justify-between relative h-full"
                       >
-                        {onDeleteVideo && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteVideo(vid.id);
-                            }}
-                            title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete Video'}
-                            className="absolute top-5 right-5 z-30 p-2 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        )}
+                        {/* Bottom ambient glow on hover in website color code #06cdff */}
+                        <div className="absolute -bottom-3 inset-x-6 h-8 bg-[#06cdff]/45 blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none rounded-full" />
 
                         <div>
-                          {/* Consistent Uniform Media Viewport Box across all cards - aspect-video 16:9 */}
-                          <div className="w-full aspect-video bg-[#070707] rounded-xl overflow-hidden mb-3.5 border border-[#262626] group-hover:border-[#06cdff]/60 relative flex items-center justify-center select-none group/player transition-colors">
-                            {isReels ? (
-                              /* Reels Frame (9:16) inside the uniform box */
-                              <>
-                                {/* Soft ambient blurred backdrop behind the vertical frame */}
-                                {vid.thumbnail && (
-                                  <img
-                                    src={vid.thumbnail}
-                                    alt=""
-                                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-30 scale-110 pointer-events-none"
+                          {/* Media Viewport Box across all cards with smooth hover motion and under-glow */}
+                          <div className="relative w-full mb-3.5">
+                            <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-[#1f1f1f] group-hover:border-[#06cdff]/60 transition-all duration-300 group-hover:scale-[1.015] relative flex items-center justify-center select-none group-hover:shadow-[0_8px_25px_rgba(6,205,255,0.25)]">
+                              {isReels ? (
+                                /* Reels Vertical Frame (9:16) centered with black bars on sides */
+                                <div className="relative h-full aspect-[9/16] bg-black">
+                                  <iframe
+                                    key={vid.id}
+                                    src={formatVideoEmbedUrl(vid.url, false)}
+                                    title={vid.title}
+                                    className="w-full h-full bg-black block border-0"
+                                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    allowFullScreen
                                   />
-                                )}
-                                <div className="absolute inset-0 bg-black/50 pointer-events-none" />
-
-                                {/* Vertical Reels Smartphone Frame */}
-                                <div className="relative h-full aspect-[9/16] rounded-lg overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.9)] border border-white/10 group-hover:scale-105 transition-transform duration-300 bg-neutral-950">
-                                  <SafeProjectImage
-                                    src={vid.thumbnail || ''}
-                                    alt={vid.title}
-                                    lang={lang}
-                                    className="w-full h-full object-cover"
-                                  />
-                                  {/* Cinema gradient overlay */}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-
-                                  {/* Center Glowing Play Button */}
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-10 h-10 rounded-full bg-black/75 border border-[#06cdff]/70 text-[#06cdff] group-hover:scale-110 group-hover:bg-[#06cdff] group-hover:text-black flex items-center justify-center transition-all duration-300 shadow-[0_0_20px_rgba(6,205,255,0.4)]">
-                                      <Play size={16} fill="currentColor" className="ml-0.5" />
-                                    </div>
-                                  </div>
                                 </div>
-                              </>
-                            ) : (
-                              /* YouTube Widescreen Frame (16:9) FULL-FRAME inside the box - NO nested inner box */
-                              <>
-                                <SafeProjectImage
-                                  src={vid.thumbnail || ''}
-                                  alt={vid.title}
-                                  lang={lang}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              ) : (
+                                /* YouTube / Widescreen (16:9) FULL-FRAME with native iframe player */
+                                <iframe
+                                  key={vid.id}
+                                  src={formatVideoEmbedUrl(vid.url, false)}
+                                  title={vid.title}
+                                  className="w-full h-full bg-black block border-0"
+                                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                                  referrerPolicy="strict-origin-when-cross-origin"
+                                  allowFullScreen
                                 />
-
-                                {/* Cinema gradient overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-                                {/* Center Glowing Play Button */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-12 h-12 rounded-full bg-black/75 border border-[#06cdff]/70 text-[#06cdff] group-hover:scale-110 group-hover:bg-[#06cdff] group-hover:text-black flex items-center justify-center transition-all duration-300 shadow-[0_0_20px_rgba(6,205,255,0.4)]">
-                                    <Play size={18} fill="currentColor" className="ml-0.5" />
-                                  </div>
-                                </div>
-                              </>
-                            )}
-
-                            {/* Duration Badge */}
-                            {vid.duration && (
-                              <div className="absolute bottom-2.5 right-2.5 z-20 px-2 py-0.5 rounded-md bg-black/85 backdrop-blur-md text-[10px] font-mono font-bold text-white border border-white/15 pointer-events-none">
-                                {vid.duration}
-                              </div>
-                            )}
-
-                            {/* Hover Preview Pill */}
-                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-20">
-                              <span className="px-3.5 py-1.5 rounded-full bg-[#06cdff] text-black text-xs font-bold flex items-center gap-1.5 shadow-lg transform translate-y-8 group-hover:translate-y-6 transition-transform duration-300">
-                                <Play size={12} fill="black" />
-                                <span>{lang === 'bn' ? 'চালিয়ে দেখুন' : 'Watch Video'}</span>
-                              </span>
+                              )}
                             </div>
+                            {/* Direct under-video luminous glow in website color */}
+                            <div className="absolute -bottom-2 inset-x-8 h-4 bg-[#06cdff]/35 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full" />
                           </div>
 
-                          <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#06cdff] transition-colors truncate">
-                            {vid.title}
-                          </h4>
-                          <p className="text-xs text-neutral-400 truncate mt-0.5">
-                            {vid.desc}
-                          </p>
-                        </div>
-
-                        <div className="pt-3">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveVideoModal(vid);
-                            }}
-                            className="w-full py-2 px-3 rounded-xl bg-[#141414] hover:bg-[#06cdff] hover:text-black border border-[#262626] hover:border-[#06cdff] text-xs font-semibold text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-                          >
-                            <Play size={13} fill="currentColor" />
-                            <span>{lang === 'bn' ? 'ফুল স্ক্রিনে চালান' : 'Watch Full Screen'}</span>
-                          </button>
+                          {/* Video Title in Website Brand Color (#06cdff) and English Description */}
+                          <div className="pt-0.5">
+                            <h4 className="text-base sm:text-lg font-bold text-[#06cdff] group-hover:brightness-125 transition-all mb-2 leading-snug">
+                              {vid.title}
+                            </h4>
+                            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                              {vid.desc}
+                            </p>
+                          </div>
                         </div>
                       </motion.div>
                     );
                   })}
                 </div>
               ) : (
-                /* Slider View for Videos - Exact match with user screenshot, respecting 9:16 and 16:9 frames */
-                <div className="space-y-5">
+                /* Slider View for Videos */
+                <div className="space-y-6">
                   <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
                     {/* Left Flanking Navigation Arrow */}
                     <button
                       type="button"
                       onClick={handlePrevSlider}
                       aria-label="Previous Video"
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#121212] hover:bg-[#1f1f1f] border border-[#2a2a2a] hover:border-[#06cdff] text-neutral-400 hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
                     >
                       <ChevronLeft size={20} />
                     </button>
 
-                    {/* Central Video Frame with Rounded Neon Border - Uniform box size across all videos */}
-                    <div className="flex-1 w-full max-w-[860px] aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[24px] sm:rounded-[32px] border-2 sm:border-[2.5px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.25)] relative flex items-center justify-center group">
-                      {videos[sliderIndex] && (() => {
-                        const currentVid = videos[sliderIndex];
-                        const isReels = currentVid.aspectRatio === '9:16' || currentVid.format === 'reels';
-                        const isPlaying = sliderPlayingId === currentVid.id;
+                    {/* Central Video Frame with Rounded Neon Border in Website Color #06cdff, Hover Motion & Bottom Glow */}
+                    <div className="relative flex-1 w-full max-w-[860px] group">
+                      <div className="w-full aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[28px] sm:rounded-[36px] border-[3px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.3)] group-hover:shadow-[0_0_55px_rgba(6,205,255,0.5)] group-hover:scale-[1.012] group-hover:-translate-y-1 transition-all duration-300 relative flex items-center justify-center">
+                        {videos[sliderIndex] && (() => {
+                          const currentVid = videos[sliderIndex];
+                          const isReels = currentVid.aspectRatio === '9:16' || currentVid.format === 'reels';
 
-                        if (isReels) {
-                          /* Reels Frame (9:16) inside the uniform slider box */
-                          return (
-                            <>
-                              {/* Ambient blurred backdrop from authentic video thumbnail */}
-                              {currentVid.thumbnail && (
-                                <img
-                                  src={currentVid.thumbnail}
-                                  alt=""
-                                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-35 scale-125 pointer-events-none"
-                                />
-                              )}
-                              <div className="absolute inset-0 bg-black/60 pointer-events-none" />
-
-                              {/* Centered Vertical 9:16 Reels Frame */}
-                              <div className="relative h-full aspect-[9/16] max-h-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.9)] z-10 bg-neutral-950 flex items-center justify-center group/reel">
-                                {isPlaying ? (
-                                  <iframe
-                                    key={currentVid.id}
-                                    src={formatVideoEmbedUrl(currentVid.url, true)}
-                                    title={currentVid.title}
-                                    className="w-full h-full bg-black block border-0"
-                                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                  />
-                                ) : (
-                                  /* Starting Thumbnail Preview matching user screenshot */
-                                  <div
-                                    onClick={() => setSliderPlayingId(currentVid.id)}
-                                    className="relative w-full h-full cursor-pointer overflow-hidden flex items-center justify-center"
-                                  >
-                                    <SafeProjectImage
-                                      src={currentVid.thumbnail || ''}
-                                      alt={currentVid.title}
-                                      lang={lang}
-                                      className="w-full h-full object-cover group-hover/reel:scale-105 transition-transform duration-500"
-                                    />
-                                    {/* Cinematic vignette overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-
-                                    {/* Glowing Center Play Button */}
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                      <div className="w-14 h-14 rounded-full bg-black/80 border-2 border-[#06cdff] text-[#06cdff] group-hover/reel:scale-110 group-hover/reel:bg-[#06cdff] group-hover/reel:text-black flex items-center justify-center transition-all duration-300 shadow-[0_0_25px_rgba(6,205,255,0.6)]">
-                                        <Play size={22} fill="currentColor" className="ml-1" />
-                                      </div>
-                                    </div>
-
-                                    {/* Floating Play Action Label */}
-                                    <div className="absolute bottom-4 inset-x-0 flex justify-center pointer-events-none">
-                                      <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#06cdff]/50 text-[#06cdff] text-[11px] font-bold shadow-lg flex items-center gap-1.5 group-hover/reel:bg-[#06cdff] group-hover/reel:text-black transition-colors">
-                                        <Play size={10} fill="currentColor" />
-                                        <span>{lang === 'bn' ? 'ভিডিও চালান' : 'Play Video'}</span>
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Reset to thumbnail toggle if playing */}
-                              {isPlaying && (
-                                <button
-                                  type="button"
-                                  onClick={() => setSliderPlayingId(null)}
-                                  className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/85 hover:bg-[#06cdff] hover:text-black text-xs font-bold text-neutral-300 transition-colors border border-white/20 cursor-pointer shadow-lg flex items-center gap-1.5"
-                                >
-                                  <RefreshCw size={12} />
-                                  <span>{lang === 'bn' ? 'থাম্বনেইল' : 'Thumbnail'}</span>
-                                </button>
-                              )}
-                            </>
-                          );
-                        } else {
-                          /* YouTube Frame (16:9) inside the uniform slider box - FULL FRAME inside the box */
-                          return (
-                            <>
-                              {isPlaying ? (
+                          if (isReels) {
+                            return (
+                              <div className="relative h-full aspect-[9/16] max-h-full rounded-2xl overflow-hidden bg-black shadow-2xl">
                                 <iframe
                                   key={currentVid.id}
-                                  src={formatVideoEmbedUrl(currentVid.url, true)}
+                                  src={formatVideoEmbedUrl(currentVid.url, false)}
                                   title={currentVid.title}
                                   className="w-full h-full bg-black block border-0"
                                   allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
                                   referrerPolicy="strict-origin-when-cross-origin"
                                   allowFullScreen
                                 />
-                              ) : (
-                                /* Starting Thumbnail Preview filling the full widescreen frame */
-                                <div
-                                  onClick={() => setSliderPlayingId(currentVid.id)}
-                                  className="relative w-full h-full cursor-pointer overflow-hidden flex items-center justify-center group/yt"
-                                >
-                                  <SafeProjectImage
-                                    src={currentVid.thumbnail || ''}
-                                    alt={currentVid.title}
-                                    lang={lang}
-                                    className="w-full h-full object-cover group-hover/yt:scale-105 transition-transform duration-500"
-                                  />
-                                  {/* Cinema gradient overlay */}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-
-                                  {/* Glowing Center Play Button */}
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/80 border-2 border-[#06cdff] text-[#06cdff] group-hover/yt:scale-110 group-hover/yt:bg-[#06cdff] group-hover/yt:text-black flex items-center justify-center transition-all duration-300 shadow-[0_0_35px_rgba(6,205,255,0.65)]">
-                                      <Play size={28} fill="currentColor" className="ml-1 sm:ml-1.5" />
-                                    </div>
-                                  </div>
-
-                                  {/* Floating Play Action Label */}
-                                  <div className="absolute bottom-5 inset-x-0 flex justify-center pointer-events-none">
-                                    <span className="px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#06cdff]/60 text-[#06cdff] text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2 group-hover/yt:bg-[#06cdff] group-hover/yt:text-black transition-colors">
-                                      <Play size={13} fill="currentColor" />
-                                      <span>{lang === 'bn' ? 'ভিডিও চালান' : 'Play Video'}</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Reset to thumbnail toggle if playing */}
-                              {isPlaying && (
-                                <button
-                                  type="button"
-                                  onClick={() => setSliderPlayingId(null)}
-                                  className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-black/85 hover:bg-[#06cdff] hover:text-black text-xs font-bold text-neutral-300 transition-colors border border-white/20 cursor-pointer shadow-lg flex items-center gap-1.5"
-                                >
-                                  <RefreshCw size={12} />
-                                  <span>{lang === 'bn' ? 'থাম্বনেইল' : 'Thumbnail'}</span>
-                                </button>
-                              )}
-                            </>
-                          );
-                        }
-                      })()}
-
-                      {/* Delete button */}
-                      {onDeleteVideo && videos[sliderIndex] && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteVideo(videos[sliderIndex].id);
-                          }}
-                          title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete Video'}
-                          className="absolute top-3 right-3 z-30 p-2.5 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      )}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <iframe
+                                key={currentVid.id}
+                                src={formatVideoEmbedUrl(currentVid.url, false)}
+                                title={currentVid.title}
+                                className="w-full h-full bg-black block border-0"
+                                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allowFullScreen
+                              />
+                            );
+                          }
+                        })()}
+                      </div>
+                      {/* Luminous glow underneath slider frame in website color */}
+                      <div className="absolute -bottom-4 inset-x-12 h-9 bg-[#06cdff]/45 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full" />
                     </div>
 
                     {/* Right Flanking Navigation Arrow */}
@@ -943,80 +760,34 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                       type="button"
                       onClick={handleNextSlider}
                       aria-label="Next Video"
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#181818] hover:bg-[#242424] border border-[#2a2a2a] hover:border-[#06cdff] text-white hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#121212] hover:bg-[#1f1f1f] border border-[#2a2a2a] hover:border-[#06cdff] text-neutral-400 hover:text-[#06cdff] flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xl active:scale-95 z-20"
                     >
                       <ChevronRight size={20} />
                     </button>
                   </div>
 
-                  {/* Clean Slide Dots & Count Indicator (1 / N) */}
-                  {videos.length > 1 && (
-                    <div className="flex items-center justify-center gap-3 pt-1">
-                      <div className="flex items-center gap-1.5">
-                        {videos.map((_, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => handleSelectSlide(idx)}
-                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                              idx === sliderIndex
-                                ? 'w-7 bg-[#06cdff] shadow-[0_0_10px_rgba(6,205,255,0.6)]'
-                                : 'w-1.5 bg-neutral-700 hover:bg-neutral-500'
-                            }`}
-                            aria-label={`Slide ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-
-                      <span className="text-xs font-mono text-neutral-400">
-                        <span className="text-[#06cdff] font-bold">{sliderIndex + 1}</span> / {videos.length}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Video Caption & Controls */}
+                  {/* Active Video Title in Website Brand Color & English Description */}
                   {videos[sliderIndex] && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 max-w-3xl mx-auto px-4 pt-1">
-                      <div className="text-center sm:text-left">
-                        <h4 className="text-base sm:text-lg font-bold text-white mb-1">
-                          {videos[sliderIndex].title}
-                        </h4>
-                        <p className="text-xs text-neutral-400 line-clamp-2">
-                          {videos[sliderIndex].desc}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (sliderPlayingId === videos[sliderIndex].id) {
-                              setSliderPlayingId(null);
-                            } else {
-                              setSliderPlayingId(videos[sliderIndex].id);
-                            }
-                          }}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#06cdff] hover:bg-[#05b8e6] text-black text-xs font-extrabold transition-all cursor-pointer shadow-md active:scale-95"
-                        >
-                          <Play size={13} fill="currentColor" />
-                          <span>
-                            {sliderPlayingId === videos[sliderIndex].id
-                              ? (lang === 'bn' ? 'থাম্বনেইল দেখুন' : 'Show Thumbnail')
-                              : (lang === 'bn' ? 'ভিডিও চালান' : 'Play Video')}
-                          </span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveVideoModal(videos[sliderIndex])}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141414] hover:bg-[#222222] border border-[#2a2a2a] text-xs font-semibold text-white transition-all cursor-pointer shadow-md"
-                        >
-                          <ExternalLink size={13} />
-                          <span>{lang === 'bn' ? 'ফুল স্ক্রিন' : 'Full Screen'}</span>
-                        </button>
-                      </div>
+                    <div className="text-center space-y-2 pt-1 max-w-2xl mx-auto px-4">
+                      <h4 className="text-base sm:text-lg font-bold text-[#06cdff]">
+                        {videos[sliderIndex].title}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                        {videos[sliderIndex].desc}
+                      </p>
                     </div>
                   )}
+
+                  {/* View all video projects Button in Website Brand Color */}
+                  <div className="flex justify-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('grid')}
+                      className="px-8 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-sm sm:text-base transition-all duration-200 shadow-[0_0_20px_rgba(6,205,255,0.35)] hover:shadow-[0_0_30px_rgba(6,205,255,0.6)] cursor-pointer active:scale-95"
+                    >
+                      View all video projects
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -1135,21 +906,6 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                       lang={lang}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-
-                    {/* Delete button */}
-                    {onDeleteGraphic && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteGraphic(item.id);
-                        }}
-                        title="Delete this design"
-                        className="absolute top-2.5 right-2.5 z-20 p-2 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
 
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                       <span className="px-3 py-1.5 rounded-full bg-[#06cdff] text-black text-xs font-bold flex items-center gap-1 shadow-lg">
@@ -1299,21 +1055,6 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         }}
                       />
                     </label>
-                  )}
-
-                  {/* Delete button */}
-                  {onDeleteGraphic && graphicItems[sliderIndex] && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteGraphic(graphicItems[sliderIndex].id);
-                      }}
-                      title="Delete this design"
-                      className="absolute top-3 right-3 z-30 p-2.5 rounded-xl bg-black/80 hover:bg-red-500 text-neutral-300 hover:text-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                    >
-                      <Trash2 size={15} />
-                    </button>
                   )}
 
                   {/* Click to zoom badge */}
@@ -1467,11 +1208,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 </div>
               )}
 
-              <div>
-                <h3 className="text-lg font-bold text-white mb-1">
+              <div className="pt-2">
+                <h3 className="text-lg font-bold text-[#06cdff] mb-2">
                   {activeVideoModal.title}
                 </h3>
-                <p className="text-xs text-neutral-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
                   {activeVideoModal.desc}
                 </p>
               </div>

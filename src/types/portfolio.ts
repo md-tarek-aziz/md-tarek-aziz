@@ -23,6 +23,7 @@ export interface VideoProject {
   duration?: string;
   format?: 'youtube' | 'reels';
   aspectRatio?: '16:9' | '9:16';
+  tags?: [string, string] | string[];
 }
 
 export interface GraphicProject {
