@@ -639,60 +639,57 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           ) : (
             <div className="space-y-6">
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {videos.map((vid) => {
                     const isReels = vid.aspectRatio === '9:16' || vid.format === 'reels';
                     return (
                       <motion.div
                         key={vid.id}
-                        whileHover={{ y: -8, scale: 1.02 }}
-                        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                        whileHover={{ y: -5 }}
                         onClick={() => setActiveVideoModal(vid)}
-                        className="group border border-[#222222] hover:border-[#06cdff] bg-[#0c0c0c] rounded-2xl p-4 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(6,205,255,0.38)] cursor-pointer flex flex-col justify-between relative h-full"
+                        className="group border border-[#262626] bg-[#0a0a0a] rounded-2xl p-3.5 transition-all hover:border-[#06cdff]/40 hover:shadow-[0_0_20px_rgba(6,205,255,0.25)] cursor-pointer flex flex-col justify-between relative h-full"
                       >
-                        {/* Bottom ambient glow on hover in website color code #06cdff */}
-                        <div className="absolute -bottom-3 inset-x-6 h-8 bg-[#06cdff]/45 blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none rounded-full" />
-
                         <div>
-                          {/* Media Viewport Box across all cards with smooth hover motion and under-glow */}
-                          <div className="relative w-full mb-3.5">
-                            <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-[#1f1f1f] group-hover:border-[#06cdff]/60 transition-all duration-300 group-hover:scale-[1.015] relative flex items-center justify-center select-none group-hover:shadow-[0_8px_25px_rgba(6,205,255,0.25)]">
-                              {isReels ? (
-                                /* Reels Vertical Frame (9:16) centered with black bars on sides */
-                                <div className="relative h-full aspect-[9/16] bg-black">
-                                  <iframe
-                                    key={vid.id}
-                                    src={formatVideoEmbedUrl(vid.url, false)}
-                                    title={vid.title}
-                                    className="w-full h-full bg-black block border-0"
-                                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                  />
-                                </div>
-                              ) : (
-                                /* YouTube / Widescreen (16:9) FULL-FRAME with native iframe player */
+                          {/* Media Viewport Box matching graphic items aspect & sizing */}
+                          <div className="w-full aspect-video bg-black rounded-xl overflow-hidden mb-3 border border-[#1f1f1f] group-hover:border-[#06cdff]/30 transition-colors relative flex items-center justify-center select-none">
+                            {isReels ? (
+                              /* Reels Vertical Frame (9:16) centered with black bars on sides */
+                              <div className="relative h-full aspect-[9/16] bg-black pointer-events-none">
                                 <iframe
                                   key={vid.id}
                                   src={formatVideoEmbedUrl(vid.url, false)}
                                   title={vid.title}
-                                  className="w-full h-full bg-black block border-0"
+                                  className="w-full h-full bg-black block border-0 pointer-events-none"
                                   allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
                                   referrerPolicy="strict-origin-when-cross-origin"
                                   allowFullScreen
                                 />
-                              )}
-                            </div>
-                            {/* Direct under-video luminous glow in website color */}
-                            <div className="absolute -bottom-2 inset-x-8 h-4 bg-[#06cdff]/35 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full" />
+                              </div>
+                            ) : (
+                              /* YouTube / Widescreen (16:9) FULL-FRAME with native iframe player */
+                              <div className="w-full h-full pointer-events-none">
+                                <iframe
+                                  key={vid.id}
+                                  src={formatVideoEmbedUrl(vid.url, false)}
+                                  title={vid.title}
+                                  className="w-full h-full bg-black block border-0 pointer-events-none"
+                                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                                  referrerPolicy="strict-origin-when-cross-origin"
+                                  allowFullScreen
+                                />
+                              </div>
+                            )}
+
+                            {/* Full card hover capture overlay */}
+                            <div className="absolute inset-0 bg-transparent cursor-pointer z-10" />
                           </div>
 
                           {/* Video Title in Website Brand Color (#06cdff) and English Description */}
-                          <div className="pt-0.5">
-                            <h4 className="text-base sm:text-lg font-bold text-[#06cdff] group-hover:brightness-125 transition-all mb-2 leading-snug">
+                          <div>
+                            <h4 className="text-sm sm:text-base font-bold text-[#06cdff] group-hover:text-[#38d8ff] transition-colors truncate">
                               {vid.title}
                             </h4>
-                            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                            <p className="text-xs text-neutral-400 truncate mt-0.5">
                               {vid.desc}
                             </p>
                           </div>
@@ -715,9 +712,9 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                       <ChevronLeft size={20} />
                     </button>
 
-                    {/* Central Video Frame with Rounded Neon Border in Website Color #06cdff, Hover Motion & Bottom Glow */}
-                    <div className="relative flex-1 w-full max-w-[860px] group">
-                      <div className="w-full aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[28px] sm:rounded-[36px] border-[3px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.3)] group-hover:shadow-[0_0_55px_rgba(6,205,255,0.5)] group-hover:scale-[1.012] group-hover:-translate-y-1 transition-all duration-300 relative flex items-center justify-center">
+                    {/* Central Video Frame with Rounded Neon Border in Website Color #06cdff (Static, crisp without motion) */}
+                    <div className="relative flex-1 w-full max-w-[860px]">
+                      <div className="w-full aspect-[16/10] sm:aspect-[16/9] bg-black rounded-[28px] sm:rounded-[36px] border-[3px] border-[#06cdff] overflow-hidden shadow-[0_0_35px_rgba(6,205,255,0.3)] relative flex items-center justify-center">
                         {videos[sliderIndex] && (() => {
                           const currentVid = videos[sliderIndex];
                           const isReels = currentVid.aspectRatio === '9:16' || currentVid.format === 'reels';
@@ -751,8 +748,6 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                           }
                         })()}
                       </div>
-                      {/* Luminous glow underneath slider frame in website color */}
-                      <div className="absolute -bottom-4 inset-x-12 h-9 bg-[#06cdff]/45 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-full" />
                     </div>
 
                     {/* Right Flanking Navigation Arrow */}
@@ -766,27 +761,18 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                     </button>
                   </div>
 
-                  {/* Active Video Title in Website Brand Color & English Description */}
-                  {videos[sliderIndex] && (
-                    <div className="text-center space-y-2 pt-1 max-w-2xl mx-auto px-4">
-                      <h4 className="text-base sm:text-lg font-bold text-[#06cdff]">
-                        {videos[sliderIndex].title}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
-                        {videos[sliderIndex].desc}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* View all video projects Button in Website Brand Color */}
+                  {/* View all video projects Button in Website Brand Color with subtle motion matching other site buttons */}
                   <div className="flex justify-center pt-2">
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => setViewMode('grid')}
-                      className="px-8 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-sm sm:text-base transition-all duration-200 shadow-[0_0_20px_rgba(6,205,255,0.35)] hover:shadow-[0_0_30px_rgba(6,205,255,0.6)] cursor-pointer active:scale-95"
+                      whileHover={{ scale: 1.03, y: -2, boxShadow: '0 0 25px rgba(6,205,255,0.6)' }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                      className="px-8 py-3 rounded-full bg-[#06cdff] hover:bg-[#05b8e6] text-black font-extrabold text-sm sm:text-base shadow-[0_0_20px_rgba(6,205,255,0.35)] cursor-pointer"
                     >
                       View all video projects
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               )}
