@@ -59,22 +59,22 @@ export default function App() {
   // Load saved profile if modified in browser
   const [profile, setProfile] = useState<PortfolioProfile>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_profile_v2');
+      const saved = localStorage.getItem('tarek_portfolio_profile_v3');
       if (saved) {
         return {
           ...defaultProfile,
           ...JSON.parse(saved),
         };
       }
-      const v1 = localStorage.getItem('tarek_portfolio_profile');
-      if (v1) {
-        const parsed = JSON.parse(v1);
+      const v2 = localStorage.getItem('tarek_portfolio_profile_v2');
+      if (v2) {
+        const parsed = JSON.parse(v2);
         const migrated = {
           ...defaultProfile,
           ...parsed,
           heroImage: defaultProfile.heroImage,
         };
-        localStorage.setItem('tarek_portfolio_profile_v2', JSON.stringify(migrated));
+        localStorage.setItem('tarek_portfolio_profile_v3', JSON.stringify(migrated));
         return migrated;
       }
     } catch (e) {
@@ -86,13 +86,33 @@ export default function App() {
   // Video projects state (stored in localStorage)
   const [videos, setVideos] = useState<VideoProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_videos_v3');
+      const saved = localStorage.getItem('tarek_portfolio_videos_v10');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          const defaultUrlMap = new Map(defaultVideos.map((dv) => [dv.url, dv]));
+          const updated = parsed.map((p: VideoProject) => {
+            const dv = defaultUrlMap.get(p.url);
+            return dv
+              ? {
+                  ...p,
+                  thumbnail: dv.thumbnail,
+                  format: dv.format,
+                  aspectRatio: dv.aspectRatio,
+                  title: dv.title,
+                  desc: dv.desc,
+                }
+              : p;
+          });
+          const existingUrls = new Set(updated.map((p: VideoProject) => p.url));
+          const missingDefaults = defaultVideos.filter((dv) => !existingUrls.has(dv.url));
+          const merged = [...missingDefaults, ...updated];
+          localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(merged));
+          return merged;
         }
       }
+      // Migrate or initialize with all defaultVideos with proper formats
+      localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(defaultVideos));
     } catch (e) {
       // fallback
     }
@@ -107,7 +127,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_videos_v3', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -119,7 +139,7 @@ export default function App() {
     setVideos((prev) => {
       const updated = prev.filter((v) => v.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_videos_v3', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_videos_v10', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -130,7 +150,7 @@ export default function App() {
   // Custom graphic projects state (stored in localStorage)
   const [graphics, setGraphics] = useState<GraphicProject[]>(() => {
     try {
-      const saved = localStorage.getItem('tarek_portfolio_graphics_v17');
+      const saved = localStorage.getItem('tarek_portfolio_graphics_v18');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -168,7 +188,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = [item, ...prev];
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v18', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -180,7 +200,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = prev.filter((g) => g.id !== id);
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v18', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }
@@ -192,7 +212,7 @@ export default function App() {
     setGraphics((prev) => {
       const updated = prev.map((g) => (g.id === id ? { ...g, ...updatedFields } : g));
       try {
-        localStorage.setItem('tarek_portfolio_graphics_v17', JSON.stringify(updated));
+        localStorage.setItem('tarek_portfolio_graphics_v18', JSON.stringify(updated));
       } catch (e) {
         console.error(e);
       }

@@ -117,27 +117,46 @@ export const Hero: React.FC<HeroProps> = ({
             <span className="text-neutral-600">•</span>
             <span>{t.location}</span>
           </div>
+
+          {/* Quick Social Links */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <a
+              href="https://wa.me/8801883555337"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1.5 rounded-xl bg-[#141414] hover:bg-[#25D366] hover:text-black border border-[#262626] hover:border-[#25D366] text-xs font-semibold text-neutral-300 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <span>💬</span>
+              <span>WhatsApp</span>
+            </a>
+            <a
+              href="https://www.facebook.com/md.tarek.aziz.607674"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1.5 rounded-xl bg-[#141414] hover:bg-[#1877F2] hover:text-white border border-[#262626] hover:border-[#1877F2] text-xs font-semibold text-neutral-300 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <span>👤</span>
+              <span>Facebook</span>
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Right Column: Exact Photo & Glow Background matching mohiuddinmahim.vercel.app */}
+      {/* Right Column: Transparent Photo & Circular Glow Background */}
       <div className="relative flex justify-center">
-        <div className="relative group">
-          {/* EXACT GLOW BEHIND PHOTO: radial blur aura behind the frame */}
-          <div className="absolute -inset-3 bg-[#06cdff] blur-2xl opacity-25 rounded-3xl transition-all duration-500 group-hover:opacity-60 group-hover:blur-3xl" />
+        <div className="relative group flex items-center justify-center">
+          {/* Circular Glow Aura behind Photo: soft cyan radial circular glow */}
+          <div className="absolute inset-0 m-auto w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-tr from-[#06cdff]/35 via-[#06cdff]/20 to-transparent blur-3xl rounded-full transition-all duration-500 group-hover:scale-110 group-hover:opacity-80 pointer-events-none" />
 
-          {/* Portrait Container with rounded frame and glowing border */}
-          <div className="w-[300px] sm:w-[380px] md:w-[420px] aspect-[4/5] sm:aspect-square rounded-3xl relative overflow-hidden border border-[#262626] group-hover:border-[#06cdff]/70 transition-all duration-500 group-hover:scale-[1.02] cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.85)] bg-[#121212]">
+          {/* Portrait Container with transparent background */}
+          <div className="w-[300px] sm:w-[380px] md:w-[420px] aspect-[4/5] sm:aspect-square rounded-3xl relative overflow-hidden border border-[#262626]/70 group-hover:border-[#06cdff]/70 transition-all duration-500 group-hover:scale-[1.02] cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.7)] bg-transparent">
             <motion.img
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.5 }}
               src={profile.heroImage}
               alt={profile.name}
-              className="w-full h-full object-cover object-top select-none transition-transform duration-700"
+              className="w-full h-full object-contain object-bottom select-none transition-transform duration-700"
             />
-
-            {/* Subtle bottom gradient for cinematic depth and integration */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent pointer-events-none" />
 
             {/* Top right creative badge */}
             <div className="absolute top-3.5 right-3.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#06cdff]/40 text-[#06cdff] text-[10px] font-mono tracking-wider font-bold shadow-lg flex items-center gap-1.5 pointer-events-none">

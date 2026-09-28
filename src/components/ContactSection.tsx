@@ -65,11 +65,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ profile, lang })
     },
     {
       title: lang === 'bn' ? 'লিঙ্কডইন' : 'LinkedIn',
-      name: 'Mohiuddin Mahim (LinkedIn)',
+      name: 'Md Tarek Aziz (LinkedIn)',
       sub: lang === 'bn' ? 'লিঙ্কডইনে কানেক্ট করুন' : 'Connect on LinkedIn',
       action: lang === 'bn' ? 'লিঙ্কডইন দেখুন' : 'Visit LinkedIn',
       icon: <Linkedin size={22} />,
-      href: 'https://www.linkedin.com/in/mohiuddin-mahim-b6aa5635a/',
+      href: 'https://www.linkedin.com/in/md-tarek-aziz',
     },
   ];
 

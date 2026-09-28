@@ -19,7 +19,10 @@ export interface VideoProject {
   desc: string;
   type: 'vimeo' | 'youtube' | 'mp4';
   url: string;
+  thumbnail?: string;
   duration?: string;
+  format?: 'youtube' | 'reels';
+  aspectRatio?: '16:9' | '9:16';
 }
 
 export interface GraphicProject {
